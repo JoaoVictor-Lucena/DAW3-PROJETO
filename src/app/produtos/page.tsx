@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon, PackageIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { DeleteProductModal } from "@/components/produtos/DeleteProductModal";
 import {
   ProductFilters,
   type FiltrosAplicados,
@@ -47,6 +48,7 @@ export default function ProdutosPage() {
   const [reload, setReload] = React.useState(0);
   const [categorias, setCategorias] = React.useState<Categoria[]>([]);
   const [result, setResult] = React.useState<Result | null>(null);
+  const [toDelete, setToDelete] = React.useState<Produto | null>(null);
 
   // Categorias para o select de filtro
   React.useEffect(() => {
@@ -102,9 +104,12 @@ export default function ProdutosPage() {
     setSort("none");
   }
 
-  function handleDelete(produto: Produto) {
-    // Fase 5: abrirá o AlertDialog de confirmação.
-    toast.info(`Exclusão de "${produto.nome}" será conectada na Fase 5.`);
+  function handleDeleted() {
+    if (page && page.content.length <= 1 && pageIndex > 0) {
+      setPageIndex((p) => Math.max(p - 1, 0));
+    } else {
+      setReload((r) => r + 1);
+    }
   }
 
   return (
@@ -156,7 +161,7 @@ export default function ProdutosPage() {
           </p>
         </div>
       ) : (
-        <ProductList produtos={produtos} canEdit={canEdit} onDelete={handleDelete} />
+        <ProductList produtos={produtos} canEdit={canEdit} onDelete={setToDelete} />
       )}
 
       {page && page.totalElements > 0 && (
@@ -183,6 +188,12 @@ export default function ProdutosPage() {
           </div>
         </div>
       )}
+
+      <DeleteProductModal
+        produto={toDelete}
+        onOpenChange={(open) => !open && setToDelete(null)}
+        onDeleted={handleDeleted}
+      />
     </main>
   );
 }

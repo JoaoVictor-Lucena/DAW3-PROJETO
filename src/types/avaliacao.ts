@@ -8,3 +8,10 @@ export interface Avaliacao {
   idProduto: number;
   nomeProduto: string;
 }
+
+export interface AvaliacaoRequest {
+  nota: number;
+  comentario?: string;
+  idProduto: number;
+  idCliente?: number;
+}
