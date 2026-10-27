@@ -53,7 +53,6 @@ export default function ProdutosPage() {
   const [result, setResult] = React.useState<Result | null>(null);
   const [toDelete, setToDelete] = React.useState<Produto | null>(null);
 
-  // Escuta eventos disparados pelo Header ao popular ou limpar o banco
   React.useEffect(() => {
     function onSeedUpdated() {
       setPageIndex(0);
@@ -63,7 +62,6 @@ export default function ProdutosPage() {
     return () => window.removeEventListener(SEED_UPDATED_EVENT, onSeedUpdated);
   }, []);
 
-  // Categorias para o select de filtro
   React.useEffect(() => {
     let cancelled = false;
     categoriaService
@@ -91,9 +89,7 @@ export default function ProdutosPage() {
     return () => {
       cancelled = true;
     };
-    // queryKey já serializa filtros, pageIndex e reload
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryKey]);
+  }, [filtros, pageIndex, queryKey]);
 
   const loading = result?.key !== queryKey;
   const page = !loading ? result?.page : undefined;

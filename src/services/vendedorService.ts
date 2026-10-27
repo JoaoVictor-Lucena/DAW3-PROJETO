@@ -8,7 +8,6 @@ export const vendedorService = {
     return normalizePage(await api.get<RawPage<Vendedor>>(BASE, { query: { page } }));
   },
 
-  /** Percorre todas as páginas para popular o select de vendedor (ADMIN). */
   async listarTodos(): Promise<Vendedor[]> {
     const todos: Vendedor[] = [];
     let page = 0;

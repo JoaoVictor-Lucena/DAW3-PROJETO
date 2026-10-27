@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import type { Role } from "@/types";
 
-/** Renderiza os filhos apenas para as roles permitidas; as demais voltam a /produtos com aviso. */
 export function RoleGuard({
   allow,
   children,

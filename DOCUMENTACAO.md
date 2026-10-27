@@ -64,6 +64,34 @@ flowchart LR
 ```
 
 1. **Autenticação (`/login`):** Permite login com validação, criação rápida de conta (`Cliente` ou `Vendedor`) e botões de **Preenchimento Rápido (Demo)** para testar imediatamente os perfis `ADMIN` e `VENDEDOR`.
-2. **Listagem, Estatísticas e Exportação (`/produtos`):** Exibe o cabeçalho global (com botão de **Seed** para `ADMIN` e alternador de tema), 4 cards de indicadores (`ProductStats`), barra de filtros combinados (`GET /produtos/buscar`) com ordenação em memória, tabela/cards responsivos, exportação para `.CSV`/`.JSON` e paginação.
-3. **Criação (`/produtos/novo`) e Edição (`/produtos/[id]/editar`):** Reutilizam o `ProductForm`, oferecendo criação rápida de categoria em modal (`CategoriaQuickDialog`) sem perder o preenchimento do produto e enviando `POST` ou `PATCH` conforme a rota.
-4. **Detalhes e Exclusão (`/produtos/[id]`):** Apresenta ficha completa do produto, status de estoque, vendedor responsável, lista de avaliações com média de estrelas e acionamento do `DeleteProductModal` com confirmação e tratamento amigável de erros `409`.
+2. **Listagem, Estatísticas, Seed e Exportação (`/produtos`):** Exibe o cabeçalho global (com botões de **Popular Banco (Seed)** cumulativo infinito, **Limpar Banco** com confirmação em `AlertDialog` para `ADMIN` e alternador de tema), 4 cards de indicadores (`ProductStats`), barra de filtros combinados (`GET /produtos/buscar`) com máscara monetária e ordenação em memória, tabela/cards responsivos, exportação para `.CSV`/`.JSON` e paginação.
+3. **Criação (`/produtos/novo`) e Edição (`/produtos/[id]/editar`):** Reutilizam o `ProductForm` (com máscara automática de 2 casas decimais em BRL), oferecendo criação rápida de categoria em modal (`CategoriaQuickDialog`) sem perder o preenchimento do produto e enviando `POST` ou `PATCH` conforme a rota.
+4. **Detalhes e Exclusão (`/produtos/[id]`):** Centraliza a ação de **Editar Produto** (para `ADMIN` e `VENDEDOR`), apresenta ficha completa do produto, status de estoque, vendedor responsável, lista de avaliações com média de estrelas e acionamento do `DeleteProductModal` com confirmação e tratamento amigável de erros `409`.
+
+---
+
+## 5. Capturas de Tela das Telas Principais
+
+- **Autenticação e Cadastro Rápido (`/login`):**
+
+![Tela de Login](./docs/prints/01-login.png)
+
+- **Listagem, Estatísticas e Filtros (`/produtos`):**
+
+![Listagem de Produtos](./docs/prints/02-listagem.png)
+
+- **Formulário de Criação e Nova Categoria (`/produtos/novo`):**
+
+![Novo Produto](./docs/prints/03-novo-produto.png)
+
+- **Detalhes do Produto e Avaliações (`/produtos/[id]`):**
+
+![Detalhes do Produto](./docs/prints/04-detalhes.png)
+
+- **Modal de Confirmação de Exclusão (`AlertDialog`):**
+
+![Modal de Exclusão](./docs/prints/05-exclusao.png)
+
+- **Tema Escuro e Responsividade Mobile:**
+
+![Tema Escuro e Mobile](./docs/prints/06-mobile-dark.png)

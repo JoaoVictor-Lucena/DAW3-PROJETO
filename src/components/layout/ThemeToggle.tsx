@@ -15,7 +15,6 @@ export function ThemeToggle() {
       aria-label="Alternar tema claro/escuro"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
-      {/* Ícones alternados via CSS para evitar mismatch de hidratação */}
       <SunIcon className="size-4 dark:hidden" />
       <MoonIcon className="hidden size-4 dark:block" />
     </Button>

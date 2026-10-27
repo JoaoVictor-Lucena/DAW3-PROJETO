@@ -8,7 +8,6 @@ export const categoriaService = {
     return normalizePage(await api.get<RawPage<Categoria>>(BASE, { query: { page } }));
   },
 
-  /** Percorre todas as páginas (tamanho fixo de 10 no servidor) para popular selects. */
   async listarTodas(): Promise<Categoria[]> {
     const todas: Categoria[] = [];
     let page = 0;

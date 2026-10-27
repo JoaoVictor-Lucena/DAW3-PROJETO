@@ -180,14 +180,14 @@ export function ProductFilters({
       {erro && <p className="text-sm text-destructive">{erro}</p>}
 
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1.5">
+        <div className="w-full space-y-1.5 sm:w-auto">
           <Label>Ordenar (página atual)</Label>
           <Select
             items={SORT_ITEMS}
             value={sort}
             onValueChange={(v) => onSortChange((v ?? "none") as SortKey)}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -200,7 +200,7 @@ export function ProductFilters({
           </Select>
         </div>
 
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
           <Button type="button" variant="outline" onClick={clear} disabled={disabled}>
             <XIcon className="size-4" />
             Limpar filtros

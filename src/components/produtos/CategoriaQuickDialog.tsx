@@ -32,11 +32,6 @@ interface Props {
   onCreated: (categoria: Categoria) => void;
 }
 
-/**
- * Atalho para criar categoria. Não usa <form> de propósito: este componente é
- * renderizado dentro do formulário do produto e eventos de submit borbulham
- * pelos portais do React.
- */
 export function CategoriaQuickDialog({ onCreated }: Props) {
   const [open, setOpen] = React.useState(false);
   const [nome, setNome] = React.useState("");

@@ -1,6 +1,5 @@
 import type { Page, ProblemDetail, RawPage } from "@/types";
 
-/** Base das chamadas: o proxy `rewrites` do Next repassa /api/* para o back-end. */
 const API_BASE_URL = "/api";
 
 const TOKEN_KEY = "marketplace.token";
@@ -18,7 +17,6 @@ export const tokenStorage = {
   },
 };
 
-/** Erro lançado para qualquer resposta não-2xx, já normalizado como ProblemDetail. */
 export class ApiError extends Error {
   readonly status: number;
   readonly problem: ProblemDetail;
@@ -30,7 +28,6 @@ export class ApiError extends Error {
     this.problem = problem;
   }
 
-  /** Mapa {campo: mensagem} de validação (vazio se não houver). */
   get erros(): Record<string, string> {
     return this.problem.erros ?? {};
   }
@@ -50,7 +47,7 @@ async function toApiError(response: Response): Promise<ApiError> {
   try {
     body = await response.json();
   } catch {
-    body = null; // corpo vazio ou não-JSON (ex.: back-end fora do ar atrás do proxy)
+    body = null;
   }
 
   const status = body?.status ?? response.status;
@@ -74,7 +71,6 @@ type QueryValue = string | number | boolean | null | undefined;
 export interface RequestOptions extends Omit<RequestInit, "body" | "method"> {
   body?: unknown;
   query?: Record<string, QueryValue>;
-  /** Não envia o token (ex.: login, cadastros públicos). */
   skipAuth?: boolean;
 }
 
@@ -123,7 +119,6 @@ async function request<T>(
 
   if (!response.ok) throw await toApiError(response);
 
-  // 204 (DELETE) e demais respostas sem corpo
   if (response.status === 204 || response.headers.get("content-length") === "0") {
     return undefined as T;
   }
@@ -152,7 +147,6 @@ export const api = {
     request<T>("DELETE", path, options),
 };
 
-/** Unifica o Page<T> do Spring (achatado ou aninhado em `page`). */
 export function normalizePage<T>(raw: RawPage<T>): Page<T> {
   const meta = raw.page ?? raw;
   const number = meta.number ?? 0;
@@ -170,7 +164,6 @@ export function normalizePage<T>(raw: RawPage<T>): Page<T> {
   };
 }
 
-/** Mensagem amigável para toasts a partir de qualquer erro capturado. */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   if (error instanceof Error) return error.message;

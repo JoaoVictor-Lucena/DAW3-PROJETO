@@ -16,7 +16,6 @@ import { authService } from "@/services/authService";
 
 type Tipo = "CLIENTE" | "VENDEDOR";
 
-// Espelha as regras do back-end (Bean Validation).
 const baseShape = {
   nome: z.string().min(1, "Nome é obrigatório").max(100, "Máximo de 100 caracteres"),
   email: z
@@ -67,7 +66,6 @@ export function RegisterForm({ onRegistered }: { onRegistered: () => void }) {
           </Button>
         ))}
       </div>
-      {/* key força o reset do formulário (e do resolver) ao trocar o tipo */}
       <RegisterFields key={tipo} tipo={tipo} onRegistered={onRegistered} />
     </div>
   );

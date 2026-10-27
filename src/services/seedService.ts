@@ -153,7 +153,6 @@ async function garantirCategorias(existentes: Categoria[]): Promise<Categoria[]>
   const lista = [...existentes];
   const nomesUsados = new Set(lista.map((c) => c.nome.toLowerCase()));
 
-  // Escolhe até 2 departamentos ainda não presentes ou cria com sufixo curto
   const disponiveis = DEPARTAMENTOS_CANDIDATOS.filter(
     (d) => !nomesUsados.has(d.nome.toLowerCase()),
   );
@@ -175,7 +174,7 @@ async function garantirCategorias(existentes: Categoria[]): Promise<Categoria[]>
       lista.push(nova);
       nomesUsados.add(nova.nome.toLowerCase());
     } catch {
-      // Se houver colisão eventual de nome, ignora e segue com as existentes
+      continue;
     }
   }
 
@@ -207,7 +206,6 @@ async function gerarLoteAdicional(quantidade = 10): Promise<number> {
     garantirVendedores(vendsIniciais),
   ]);
 
-  // Embaralha os templates para variar os produtos a cada clique
   const embaralhados = [...CATALOGO_PRODUTOS].sort(() => Math.random() - 0.5);
   const selecionados = embaralhados.slice(0, quantidade);
   const loteTag = shortTag();
@@ -241,7 +239,6 @@ export interface SeedResult {
 }
 
 async function limparRemanescentes(): Promise<void> {
-  // Remove todos os produtos restantes (ex.: criados manualmente ou em lotes extras)
   for (let tentativa = 0; tentativa < 50; tentativa++) {
     const page = await produtoService.listar(0);
     if (page.content.length === 0) break;
@@ -252,7 +249,6 @@ async function limparRemanescentes(): Promise<void> {
     if (!removeuAlgum) break;
   }
 
-  // Remove categorias restantes após zerar os produtos
   const categorias = await categoriaService.listarTodas();
   if (categorias.length > 0) {
     await Promise.allSettled(
@@ -261,7 +257,6 @@ async function limparRemanescentes(): Promise<void> {
   }
 }
 
-/** Endpoints restritos a ADMIN. */
 export const seedService = {
   popular: () => api.post<unknown>("/seed/popular"),
   resetar: () => api.post<unknown>("/seed/resetar"),
@@ -271,12 +266,6 @@ export const seedService = {
     await limparRemanescentes();
   },
 
-  /**
-   * Seed cumulativo ("infinito"):
-   * 1) Tenta POST /seed/popular (carga inicial do back-end quando o banco está vazio).
-   * 2) Se falhar por duplicidade/conflito (400/409/500), gera um lote adicional de 10 produtos
-   *    inéditos via API, sem esbarrar nas constraints UNIQUE.
-   */
   async popularInfinito(): Promise<SeedResult> {
     try {
       await this.popular();

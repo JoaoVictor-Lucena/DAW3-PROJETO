@@ -8,7 +8,6 @@ export const avaliacaoService = {
     return normalizePage(await api.get<RawPage<Avaliacao>>(BASE, { query: { page } }));
   },
 
-  /** Percorre as páginas e filtra as avaliações vinculadas a `idProduto`. */
   async listarPorProduto(idProduto: number): Promise<Avaliacao[]> {
     const todas: Avaliacao[] = [];
     let page = 0;

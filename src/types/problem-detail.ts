@@ -15,6 +15,5 @@ export interface ProblemDetail {
   detail: string;
   instance?: string;
   timestamp?: string;
-  /** Mapa {campo: mensagem}, presente nos erros de validação. */
   erros?: Record<string, string>;
 }

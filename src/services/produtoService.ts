@@ -23,7 +23,6 @@ export const produtoService = {
     return normalizePage(await api.get<RawPage<Produto>>(BASE, { query: { page } }));
   },
 
-  /** Usa GET /produtos/buscar quando há algum filtro; senão GET /produtos. */
   async buscar(filtros: ProdutoFiltros = {}): Promise<Page<Produto>> {
     const page = filtros.page ?? 0;
     if (!temFiltro(filtros)) return this.listar(page);

@@ -10,7 +10,6 @@ export interface Produto {
   nomeVendedor: string;
 }
 
-/** Body de POST/PATCH /produtos. `idVendedor` é obrigatório apenas para ADMIN. */
 export interface ProdutoRequest {
   nome: string;
   descricao?: string;

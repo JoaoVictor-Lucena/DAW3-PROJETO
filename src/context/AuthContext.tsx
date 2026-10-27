@@ -15,7 +15,6 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
-  /** false até a sessão do localStorage ser lida no cliente. */
   ready: boolean;
   login: (credentials: LoginRequest) => Promise<AuthUser>;
   logout: () => void;
@@ -25,12 +24,11 @@ const USER_KEY = "marketplace.user";
 const LOGIN_PATH = "/login";
 const HOME_PATH = "/produtos";
 
-// --- store externo (localStorage) -------------------------------------------
 const listeners = new Set<() => void>();
 
 function subscribe(callback: () => void) {
   listeners.add(callback);
-  window.addEventListener("storage", callback); // sincroniza entre abas
+  window.addEventListener("storage", callback);
   return () => {
     listeners.delete(callback);
     window.removeEventListener("storage", callback);
@@ -41,7 +39,6 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
-/** Snapshot em string (estável entre leituras) — "" quando não há sessão. */
 function getSnapshot(): string {
   const user = window.localStorage.getItem(USER_KEY);
   const token = tokenStorage.get();
@@ -51,7 +48,6 @@ function getSnapshot(): string {
 const getServerSnapshot = () => "";
 const subscribeNoop = () => () => {};
 
-// ---------------------------------------------------------------------------
 const AuthContext = React.createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -90,7 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     emit();
   }, []);
 
-  // Proteção de rotas: sem sessão -> /login; com sessão em /login -> /produtos
   const isLoginRoute = pathname === LOGIN_PATH;
   const redirectTo = !ready ? null : !user && !isLoginRoute ? LOGIN_PATH : user && isLoginRoute ? HOME_PATH : null;
 

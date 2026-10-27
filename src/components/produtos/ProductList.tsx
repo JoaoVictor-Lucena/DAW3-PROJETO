@@ -23,7 +23,6 @@ interface Props extends ProductActionProps {
   produtos: Produto[];
 }
 
-/** Tabela no desktop (md+) e cards no mobile. */
 export function ProductList({ produtos, canEdit, onDelete }: Props) {
   return (
     <>

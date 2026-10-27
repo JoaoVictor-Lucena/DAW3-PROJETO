@@ -2,7 +2,6 @@ import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
 import { ApiError } from "@/services/api";
 
-/** Espelha o mapa `erros` do ProblemDetail nos campos do formulário. Retorna true se algum campo foi marcado. */
 export function applyApiFieldErrors<T extends FieldValues>(
   error: unknown,
   setError: UseFormSetError<T>,

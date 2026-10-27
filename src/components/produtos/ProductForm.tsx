@@ -32,7 +32,6 @@ import { categoriaService } from "@/services/categoriaService";
 import { vendedorService } from "@/services/vendedorService";
 import type { Categoria, Produto, ProdutoRequest, Vendedor } from "@/types";
 
-// Os campos numéricos ficam como string no formulário e são convertidos no submit.
 function toInt(raw: string): number {
   return Number(raw.trim().replace(",", "."));
 }
@@ -74,10 +73,8 @@ const FIELDS = [
 ] as const;
 
 interface Props {
-  /** Produto existente (modo edição). */
   produto?: Produto;
   submitLabel?: string;
-  /** Deve lançar (ApiError) em caso de falha; o sucesso/redirect é responsabilidade da página. */
   onSubmit: (dto: ProdutoRequest) => Promise<void>;
 }
 
@@ -157,7 +154,6 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
       preco: parseCurrencyInput(values.preco),
       estoque: toInt(values.estoque),
       idCategoria: Number(values.idCategoria),
-      // VENDEDOR: o back-end usa o id do token, então o campo não é enviado.
       ...(isAdmin ? { idVendedor: Number(values.idVendedor) } : {}),
     };
 
@@ -168,7 +164,6 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
         error instanceof ApiError &&
         error.status === 400 &&
         applyApiFieldErrors(error, setError, FIELDS);
-      // 400 com campos mapeados fica inline; demais (403/404/409/422...) viram toast com `detail`
       if (!mapped) toast.error(getErrorMessage(error));
     }
   }

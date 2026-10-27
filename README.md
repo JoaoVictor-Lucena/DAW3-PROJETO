@@ -106,7 +106,9 @@ Na tela de `/login`, utilize os botões de **Preenchimento Rápido (Demo)** ou i
 | **VENDEDOR** | `vendedor1@eletronicos.com` | `senha123` | Disponível após clicar em **"Popular Banco (Seed)"** |
 | **CLIENTE** | `cliente1@email.com` | `senha123` | Disponível após clicar em **"Popular Banco (Seed)"** |
 
-> **Dica para avaliação:** Faça login primeiro como **Admin** (`Demo: Admin`) e clique no botão **"Popular Banco (Seed)"** localizado no cabeçalho superior (`Header`). Isso executará `POST /seed/popular`, gerando categorias, vendedores, clientes, produtos e avaliações de teste automaticamente.
+> **Dica para avaliação (Seed Cumulativo e Limpeza):**
+> - Faça login primeiro como **Admin** (`Demo: Admin`) e clique em **"Popular Banco (Seed)"** no cabeçalho superior (`Header`). Na primeira execução (banco vazio), ele chama `POST /seed/popular` gerando a carga inicial. Se o banco já estiver populado, ele adiciona automaticamente um novo lote inédito de **+10 produtos realistas** via API, permitindo testar a paginação sem esbarrar em conflitos de unicidade.
+> - Ao lado, o botão **"Limpar Banco"** abre uma confirmação e executa `DELETE /seed/limpar` seguido da limpeza de quaisquer produtos/categorias remanescentes, zerando o catálogo e atualizando a listagem e estatísticas instantaneamente.
 
 ---
 
@@ -114,13 +116,13 @@ Na tela de `/login`, utilize os botões de **Preenchimento Rápido (Demo)** ou i
 
 ### Requisitos Obrigatórios
 - **RF01 — CRUD Completo de Produto:**
-  - **Criar (`POST /produtos`):** Formulário em `/produtos/novo` com atalho `+ Nova Categoria` em modal (`Dialog`).
-  - **Listar (`GET /produtos` e `GET /produtos/buscar`):** Tabela no desktop e cards no mobile em `/produtos`.
-  - **Detalhar (`GET /produtos/{id}`):** Página `/produtos/[id]` exibindo dados completos, estoque, vendedor e avaliações (`GET /avaliacoes`).
-  - **Editar (`PATCH /produtos/{id}`):** Formulário pré-preenchido em `/produtos/[id]/editar`.
+  - **Criar (`POST /produtos`):** Formulário em `/produtos/novo` com máscara monetária brasileira automática (`0,00`) e atalho `+ Nova Categoria` em modal (`Dialog`).
+  - **Listar (`GET /produtos` e `GET /produtos/buscar`):** Tabela no desktop e cards no mobile em `/produtos` com ações diretas de **Ver** e **Excluir**.
+  - **Detalhar (`GET /produtos/{id}`):** Página `/produtos/[id]` exibindo dados completos, estoque, vendedor, botão de **Editar Produto** e lista de avaliações (`GET /avaliacoes`).
+  - **Editar (`PATCH /produtos/{id}`):** Formulário pré-preenchido em `/produtos/[id]/editar`, acionado a partir da página de detalhes.
   - **Excluir (`DELETE /produtos/{id}`):** Modal de confirmação (`AlertDialog`) com tratamento específico para erro `409 Conflito` (produto vinculado a pedido).
 - **RF02 — Persistência Real:** Integração integral com Spring Boot + PostgreSQL via JWT.
-- **RF03 — Listagem Inteligente:** Filtro por nome (`LIKE` case-insensitive), categoria e faixa de preço (`precoMin` / `precoMax`), paginação do servidor (10 itens por página) e ordenação no cliente (preço menor/maior, nome A-Z e estoque).
+- **RF03 — Listagem Inteligente:** Filtro por nome (`LIKE` case-insensitive), categoria e faixa de preço (`precoMin` / `precoMax` com máscara monetária), paginação do servidor (10 itens por página) e ordenação no cliente (preço menor/maior, nome A-Z e estoque).
 - **RF04 — Validação de Formulários:** Esquemas `zod` + `react-hook-form` espelhando as anotações Bean Validation do back-end, além de mapeamento automático do mapa `erros` do `ProblemDetail` para os campos do formulário.
 - **RF05 — Navegação e Controle de Acesso:** Rotas `/login`, `/produtos`, `/produtos/novo`, `/produtos/[id]` e `/produtos/[id]/editar` protegidas por `AuthProvider` e `RoleGuard`.
 - **RF06 — Feedback Visual:** Esqueletos de carregamento (`Skeleton`), spinners em botões assíncronos, `AlertDialog` antes de exclusões e toasts `Sonner` exibindo mensagens de sucesso ou o campo `detail` do `ProblemDetail`.
@@ -134,17 +136,26 @@ Na tela de `/login`, utilize os botões de **Preenchimento Rápido (Demo)** ou i
 
 ## 6. Capturas de Tela (Prints)
 
-> _Espaço reservado para inserção das capturas de tela da entrega final:_
-
 - **Tela de Login e Cadastro Rápido (`/login`):**
-  `![Tela de Login](./docs/prints/01-login.png)`
+
+![Tela de Login](./docs/prints/01-login.png)
+
 - **Listagem de Produtos, Estatísticas e Filtros (`/produtos`):**
-  `![Listagem de Produtos](./docs/prints/02-listagem.png)`
+
+![Listagem de Produtos](./docs/prints/02-listagem.png)
+
 - **Cadastro de Produto e Modal de Nova Categoria (`/produtos/novo`):**
-  `![Novo Produto](./docs/prints/03-novo-produto.png)`
+
+![Novo Produto](./docs/prints/03-novo-produto.png)
+
 - **Detalhes do Produto e Avaliações (`/produtos/[id]`):**
-  `![Detalhes do Produto](./docs/prints/04-detalhes.png)`
+
+![Detalhes do Produto](./docs/prints/04-detalhes.png)
+
 - **Modal de Confirmação de Exclusão e Tratamento de Conflito 409:**
-  `![Modal de Exclusão](./docs/prints/05-exclusao.png)`
+
+![Modal de Exclusão](./docs/prints/05-exclusao.png)
+
 - **Alternância de Tema Claro/Escuro e Responsividade Mobile:**
-  `![Tema Escuro e Mobile](./docs/prints/06-mobile-dark.png)`
+
+![Tema Escuro e Mobile](./docs/prints/06-mobile-dark.png)
