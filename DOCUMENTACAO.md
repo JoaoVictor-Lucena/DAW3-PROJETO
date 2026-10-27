@@ -55,8 +55,7 @@ flowchart LR
   B -- "JWT válido" --> C["/produtos (Listagem + Stats)"]
   C -- "Novo Produto (ADMIN/VENDEDOR)" --> D["/produtos/novo (POST)"]
   C -- "Ver" --> E["/produtos/[id] (Detalhes + Avaliações)"]
-  C -- "Editar (ADMIN/VENDEDOR)" --> F["/produtos/[id]/editar (PATCH)"]
-  E -- "Editar" --> F
+  E -- "Editar (ADMIN/VENDEDOR)" --> F["/produtos/[id]/editar (PATCH)"]
   C -- "Excluir" --> G["DeleteProductModal (DELETE)"]
   E -- "Excluir" --> G
   D -- "Sucesso" --> C

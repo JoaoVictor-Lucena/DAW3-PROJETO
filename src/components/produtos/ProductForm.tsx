@@ -21,6 +21,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import {
+  formatCurrencyInput,
+  numberToCurrencyInput,
+  parseCurrencyInput,
+} from "@/lib/format";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { ApiError, getErrorMessage } from "@/services/api";
 import { categoriaService } from "@/services/categoriaService";
@@ -28,7 +33,7 @@ import { vendedorService } from "@/services/vendedorService";
 import type { Categoria, Produto, ProdutoRequest, Vendedor } from "@/types";
 
 // Os campos numéricos ficam como string no formulário e são convertidos no submit.
-function toNumber(raw: string): number {
+function toInt(raw: string): number {
   return Number(raw.trim().replace(",", "."));
 }
 
@@ -44,14 +49,14 @@ function createSchema(isAdmin: boolean) {
       .string()
       .trim()
       .min(1, "Preço é obrigatório")
-      .refine((v) => Number.isFinite(toNumber(v)), "Informe um número válido")
-      .refine((v) => toNumber(v) > 0, "O preço deve ser maior que 0"),
+      .refine((v) => Number.isFinite(parseCurrencyInput(v)), "Informe um número válido")
+      .refine((v) => parseCurrencyInput(v) > 0, "O preço deve ser maior que 0"),
     estoque: z
       .string()
       .trim()
       .min(1, "Estoque é obrigatório")
-      .refine((v) => Number.isInteger(toNumber(v)), "O estoque deve ser um número inteiro")
-      .refine((v) => toNumber(v) >= 0, "O estoque deve ser maior ou igual a 0"),
+      .refine((v) => Number.isInteger(toInt(v)), "O estoque deve ser um número inteiro")
+      .refine((v) => toInt(v) >= 0, "O estoque deve ser maior ou igual a 0"),
     idCategoria: z.string().min(1, "Selecione uma categoria"),
     idVendedor: isAdmin ? z.string().min(1, "Selecione um vendedor") : z.string(),
   });
@@ -97,7 +102,7 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
     defaultValues: {
       nome: produto?.nome ?? "",
       descricao: produto?.descricao ?? "",
-      preco: produto ? String(produto.preco) : "",
+      preco: produto ? numberToCurrencyInput(produto.preco) : "",
       estoque: produto ? String(produto.estoque) : "",
       idCategoria: produto ? String(produto.idCategoria) : "",
       idVendedor: produto ? String(produto.idVendedor) : "",
@@ -149,8 +154,8 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
     const dto: ProdutoRequest = {
       nome: values.nome.trim(),
       descricao: values.descricao.trim() || undefined,
-      preco: toNumber(values.preco),
-      estoque: toNumber(values.estoque),
+      preco: parseCurrencyInput(values.preco),
+      estoque: toInt(values.estoque),
       idCategoria: Number(values.idCategoria),
       // VENDEDOR: o back-end usa o id do token, então o campo não é enviado.
       ...(isAdmin ? { idVendedor: Number(values.idVendedor) } : {}),
@@ -193,12 +198,22 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="preco">Preço (R$)</Label>
-          <Input
-            id="preco"
-            inputMode="decimal"
-            placeholder="0,00"
-            aria-invalid={!!errors.preco}
-            {...register("preco")}
+          <Controller
+            control={control}
+            name="preco"
+            render={({ field }) => (
+              <Input
+                id="preco"
+                inputMode="numeric"
+                placeholder="0,00"
+                aria-invalid={!!errors.preco}
+                name={field.name}
+                ref={field.ref}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChange={(e) => field.onChange(formatCurrencyInput(e.target.value))}
+              />
+            )}
           />
           {fieldError("preco")}
         </div>

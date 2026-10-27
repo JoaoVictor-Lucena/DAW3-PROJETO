@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import type { Categoria } from "@/types";
 
 export type SortKey =
@@ -51,9 +52,9 @@ interface Props {
 const TODAS = "todas";
 
 function parsePreco(raw: string): number | undefined | "invalid" {
-  const s = raw.trim().replace(",", ".");
+  const s = raw.trim();
   if (!s) return undefined;
-  const n = Number(s);
+  const n = parseCurrencyInput(s);
   return Number.isFinite(n) && n >= 0 ? n : "invalid";
 }
 
@@ -152,26 +153,26 @@ export function ProductFilters({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="f-min">Preço mínimo</Label>
+          <Label htmlFor="f-min">Preço mínimo (R$)</Label>
           <Input
             id="f-min"
-            inputMode="decimal"
+            inputMode="numeric"
             placeholder="0,00"
             value={min}
             aria-invalid={!!erro}
-            onChange={(e) => setMin(e.target.value)}
+            onChange={(e) => setMin(formatCurrencyInput(e.target.value))}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="f-max">Preço máximo</Label>
+          <Label htmlFor="f-max">Preço máximo (R$)</Label>
           <Input
             id="f-max"
-            inputMode="decimal"
+            inputMode="numeric"
             placeholder="0,00"
             value={max}
             aria-invalid={!!erro}
-            onChange={(e) => setMax(e.target.value)}
+            onChange={(e) => setMax(formatCurrencyInput(e.target.value))}
           />
         </div>
       </div>

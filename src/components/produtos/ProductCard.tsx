@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { EyeIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { EyeIcon, Trash2Icon } from "lucide-react";
 
 import { StockBadge } from "@/components/produtos/StockBadge";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ export function ProductActions({
   onDelete,
 }: ProductActionProps & { produto: Produto }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       <Link
         href={`/produtos/${produto.id}`}
         className={buttonVariants({ variant: "outline", size: "sm" })}
@@ -30,23 +30,14 @@ export function ProductActions({
         <EyeIcon /> Ver
       </Link>
       {canEdit && (
-        <>
-          <Link
-            href={`/produtos/${produto.id}/editar`}
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-            aria-label={`Editar ${produto.nome}`}
-          >
-            <PencilIcon /> Editar
-          </Link>
-          <Button
-            variant="destructive"
-            size="sm"
-            aria-label={`Excluir ${produto.nome}`}
-            onClick={() => onDelete(produto)}
-          >
-            <Trash2Icon /> Excluir
-          </Button>
-        </>
+        <Button
+          variant="destructive"
+          size="sm"
+          aria-label={`Excluir ${produto.nome}`}
+          onClick={() => onDelete(produto)}
+        >
+          <Trash2Icon /> Excluir
+        </Button>
       )}
     </div>
   );
