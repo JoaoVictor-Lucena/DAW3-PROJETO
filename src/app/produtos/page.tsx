@@ -19,6 +19,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/services/api";
 import { categoriaService } from "@/services/categoriaService";
 import { produtoService } from "@/services/produtoService";
+import { SEED_UPDATED_EVENT } from "@/services/seedService";
 import type { Categoria, Page, Produto } from "@/types";
 
 type Result = { key: string; page?: Page<Produto>; error?: string };
@@ -52,6 +53,16 @@ export default function ProdutosPage() {
   const [result, setResult] = React.useState<Result | null>(null);
   const [toDelete, setToDelete] = React.useState<Produto | null>(null);
 
+  // Escuta eventos disparados pelo Header ao popular ou limpar o banco
+  React.useEffect(() => {
+    function onSeedUpdated() {
+      setPageIndex(0);
+      setReload((r) => r + 1);
+    }
+    window.addEventListener(SEED_UPDATED_EVENT, onSeedUpdated);
+    return () => window.removeEventListener(SEED_UPDATED_EVENT, onSeedUpdated);
+  }, []);
+
   // Categorias para o select de filtro
   React.useEffect(() => {
     let cancelled = false;
@@ -62,7 +73,7 @@ export default function ProdutosPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reload]);
 
   const queryKey = JSON.stringify({ filtros, pageIndex, reload });
 
