@@ -1,5 +1,12 @@
 # Documentação Técnica — Marketplace (DAW III - Projeto I)
 
+- **Instituição:** IFPB — Campus Esperança (CST em Análise e Desenvolvimento de Sistemas)
+- **Disciplina:** Desenvolvimento de Aplicações Web III — Prof. André Atanasio
+- **Equipe:** João Victor de Lucena Silva, Lucas Barbosa Graciano, Paulo Moura Menezes e Valdenio Pantaleao dos Santos.
+- **Repositório Back-end (API Spring Boot):** [https://github.com/devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO)
+
+---
+
 ## 1. Tema e Regras de Negócio
 
 O sistema consiste em uma plataforma de **Marketplace (E-commerce)** voltada ao gerenciamento de catálogo de **Produtos**, estruturada em torno de três perfis de acesso autenticados via **JWT (`Role`)**: **`ADMIN`**, **`VENDEDOR`** e **`CLIENTE`**.
@@ -74,24 +81,24 @@ flowchart LR
 
 - **Autenticação e Cadastro Rápido (`/login`):**
 
-![Tela de Login](./docs/prints/01-login.png)
+![Tela de Login](docs/prints/01-login.png)
 
 - **Listagem, Estatísticas e Filtros (`/produtos`):**
 
-![Listagem de Produtos](./docs/prints/02-listagem.png)
+![Listagem de Produtos](docs/prints/02-listagem.png)
 
 - **Formulário de Criação e Nova Categoria (`/produtos/novo`):**
 
-![Novo Produto](./docs/prints/03-novo-produto.png)
+![Novo Produto](docs/prints/03-novo-produto.png)
 
 - **Detalhes do Produto e Avaliações (`/produtos/[id]`):**
 
-![Detalhes do Produto](./docs/prints/04-detalhes.png)
+![Detalhes do Produto](docs/prints/04-detalhes.png)
 
 - **Modal de Confirmação de Exclusão (`AlertDialog`):**
 
-![Modal de Exclusão](./docs/prints/05-exclusao.png)
+![Modal de Exclusão](docs/prints/05-exclusao.png)
 
 - **Tema Escuro e Responsividade Mobile:**
 
-![Tema Escuro e Mobile](./docs/prints/06-mobile-dark.png)
+![Tema Escuro e Mobile](docs/prints/06-mobile-dark.png)

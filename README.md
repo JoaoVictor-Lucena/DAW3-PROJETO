@@ -1,5 +1,12 @@
 # Marketplace — Front-end (DAW III - Projeto I)
 
+- **Instituição:** IFPB — Campus Esperança (CST em Análise e Desenvolvimento de Sistemas)
+- **Disciplina:** Desenvolvimento de Aplicações Web III — Prof. André Atanasio
+- **Equipe:** João Victor de Lucena Silva, Lucas Barbosa Graciano, Paulo Moura Menezes e Valdenio Pantaleao dos Santos.
+- **Repositório Back-end (API Spring Boot):** [https://github.com/devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO)
+
+---
+
 Aplicação web front-end desenvolvida em **React 19 + Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4** e **shadcn/ui** para consumo da API REST do **Marketplace** (Spring Boot 4 + PostgreSQL 16 + JWT).
 
 O sistema implementa o gerenciamento completo (**CRUD**) da entidade **Produto**, integrado com **Categorias**, **Vendedores** e **Avaliações**, controle de acesso por perfil (`ADMIN`, `VENDEDOR`, `CLIENTE`), filtros combinados, ordenação, estatísticas visuais, exportação de dados e suporte a tema Claro/Escuro.
@@ -13,7 +20,7 @@ O sistema implementa o gerenciamento completo (**CRUD**) da entidade **Produto**
 - **Estilização e UI:** Tailwind CSS v4, shadcn/ui (`@base-ui/react`) e Lucide Icons
 - **Formulários e Validação:** React Hook Form + Zod + `@hookform/resolvers`
 - **Feedback e Tema:** Sonner (notificações Toast) e `next-themes` (Dark/Light Mode)
-- **Integração Back-end:** API REST em Spring Boot 4 (`http://localhost:8080`) via proxy `rewrites` do Next.js (`/api/:path*`)
+- **Integração Back-end:** API REST em Spring Boot 4 (`http://localhost:8080`) via proxy `rewrites` do Next.js (`/api/:path*`) — código-fonte disponível em [devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO)
 
 ---
 
@@ -67,7 +74,7 @@ src/
 - **Java 17** e **Docker** (para executar a API back-end e o banco PostgreSQL)
 
 ### 3.2. Subindo o Back-end (API Spring Boot + PostgreSQL)
-No diretório do repositório back-end do Marketplace:
+Clone o repositório do back-end em [https://github.com/devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO) e execute no diretório dele:
 
 ```bash
 # 1. Subir o container do PostgreSQL (porta 5433 do host)
@@ -138,24 +145,24 @@ Na tela de `/login`, utilize os botões de **Preenchimento Rápido (Demo)** ou i
 
 - **Tela de Login e Cadastro Rápido (`/login`):**
 
-![Tela de Login](./docs/prints/01-login.png)
+![Tela de Login](docs/prints/01-login.png)
 
 - **Listagem de Produtos, Estatísticas e Filtros (`/produtos`):**
 
-![Listagem de Produtos](./docs/prints/02-listagem.png)
+![Listagem de Produtos](docs/prints/02-listagem.png)
 
 - **Cadastro de Produto e Modal de Nova Categoria (`/produtos/novo`):**
 
-![Novo Produto](./docs/prints/03-novo-produto.png)
+![Novo Produto](docs/prints/03-novo-produto.png)
 
 - **Detalhes do Produto e Avaliações (`/produtos/[id]`):**
 
-![Detalhes do Produto](./docs/prints/04-detalhes.png)
+![Detalhes do Produto](docs/prints/04-detalhes.png)
 
 - **Modal de Confirmação de Exclusão e Tratamento de Conflito 409:**
 
-![Modal de Exclusão](./docs/prints/05-exclusao.png)
+![Modal de Exclusão](docs/prints/05-exclusao.png)
 
 - **Alternância de Tema Claro/Escuro e Responsividade Mobile:**
 
-![Tema Escuro e Mobile](./docs/prints/06-mobile-dark.png)
+![Tema Escuro e Mobile](docs/prints/06-mobile-dark.png)
