@@ -10,6 +10,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatCpfCnpj, formatPhone } from "@/lib/format";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { getErrorMessage } from "@/services/api";
 import { authService } from "@/services/authService";
@@ -38,9 +39,18 @@ const vendedorSchema = z.object({
   telefone: z.string(),
   razaoSocial: z
     .string()
-    .min(1, "Razão social é obrigatória")
-    .max(150, "Máximo de 150 caracteres"),
-  cnpjCpf: z.string().min(1, "CNPJ/CPF é obrigatório").max(18, "Máximo de 18 caracteres"),
+    .trim()
+    .min(3, "Razão social deve ter pelo menos 3 caracteres")
+    .max(150, "Máximo de 150 caracteres")
+    .refine((val) => /[a-zA-ZÀ-ÿ]/.test(val), "Razão social deve conter letras"),
+  cnpjCpf: z
+    .string()
+    .min(1, "CNPJ/CPF é obrigatório")
+    .max(18, "Máximo de 18 caracteres")
+    .refine((val) => {
+      const digits = val.replace(/\D/g, "").length;
+      return digits === 11 || digits === 14;
+    }, "Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido"),
 });
 
 type RegisterValues = z.infer<typeof vendedorSchema>;
@@ -83,6 +93,7 @@ function RegisterFields({
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterValues>({
     resolver: zodResolver(isVendedor ? vendedorSchema : clienteSchema),
@@ -126,35 +137,68 @@ function RegisterFields({
   const field = (
     name: keyof RegisterValues,
     label: string,
-    type = "text",
-    autoComplete?: string,
-  ) => (
-    <div className="space-y-2">
-      <Label htmlFor={`reg-${name}`}>{label}</Label>
-      <Input
-        id={`reg-${name}`}
-        type={type}
-        autoComplete={autoComplete}
-        {...register(name)}
-      />
-      {errors[name] && (
-        <p className="text-sm text-destructive">{errors[name]?.message}</p>
-      )}
-    </div>
-  );
+    options?: {
+      type?: string;
+      autoComplete?: string;
+      maxLength?: number;
+      placeholder?: string;
+      inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+      formatter?: (raw: string) => string;
+    },
+  ) => {
+    const registered = register(name);
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={`reg-${name}`}>{label}</Label>
+        <Input
+          id={`reg-${name}`}
+          type={options?.type ?? "text"}
+          autoComplete={options?.autoComplete}
+          maxLength={options?.maxLength}
+          placeholder={options?.placeholder}
+          inputMode={options?.inputMode}
+          {...registered}
+          onChange={(e) => {
+            if (options?.formatter) {
+              const formatted = options.formatter(e.target.value);
+              e.target.value = formatted;
+              setValue(name, formatted, { shouldValidate: Boolean(errors[name]) });
+            } else {
+              registered.onChange(e);
+            }
+          }}
+        />
+        {errors[name] && (
+          <p className="text-sm text-destructive">{errors[name]?.message}</p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {field("nome", "Nome", "text", "name")}
-      {field("email", "E-mail", "email", "email")}
-      {field("senha", "Senha", "password", "new-password")}
+      {field("nome", "Nome", { type: "text", autoComplete: "name", maxLength: 100 })}
+      {field("email", "E-mail", { type: "email", autoComplete: "email", maxLength: 100 })}
+      {field("senha", "Senha", { type: "password", autoComplete: "new-password" })}
       {isVendedor ? (
         <>
-          {field("razaoSocial", "Razão social")}
-          {field("cnpjCpf", "CNPJ/CPF")}
+          {field("razaoSocial", "Razão social", { maxLength: 150 })}
+          {field("cnpjCpf", "CNPJ/CPF", {
+            maxLength: 18,
+            inputMode: "numeric",
+            placeholder: "000.000.000-00 ou 00.000.000/0000-00",
+            formatter: formatCpfCnpj,
+          })}
         </>
       ) : (
-        field("telefone", "Telefone (opcional)", "tel", "tel")
+        field("telefone", "Telefone (opcional)", {
+          type: "tel",
+          autoComplete: "tel",
+          maxLength: 15,
+          inputMode: "numeric",
+          placeholder: "(00) 00000-0000",
+          formatter: formatPhone,
+        })
       )}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2Icon className="size-4 animate-spin" />}
