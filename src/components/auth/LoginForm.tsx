@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, ShieldCheckIcon, SparklesIcon, StoreIcon } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -22,8 +22,20 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 const DEMOS = [
-  { label: "Demo: Admin", email: "admin@marketplace.com", senha: "admin123" },
-  { label: "Demo: Vendedor", email: "vendedor1@eletronicos.com", senha: "senha123" },
+  {
+    label: "Demo: Admin",
+    hint: "admin@marketplace.com",
+    email: "admin@marketplace.com",
+    senha: "admin123",
+    Icon: ShieldCheckIcon,
+  },
+  {
+    label: "Demo: Vendedor",
+    hint: "vendedor1@eletronicos.com",
+    email: "vendedor1@eletronicos.com",
+    senha: "senha123",
+    Icon: StoreIcon,
+  },
 ] as const;
 
 export function LoginForm() {
@@ -53,46 +65,60 @@ export function LoginForm() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" type="email" autoComplete="email" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            placeholder="seu@email.com"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            {...register("email")}
+          />
           {errors.email && (
             <p className="text-sm text-destructive">{errors.email.message}</p>
           )}
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="senha">Senha</Label>
           <Input
             id="senha"
             type="password"
+            placeholder="••••••"
             autoComplete="current-password"
+            aria-invalid={!!errors.senha}
             {...register("senha")}
           />
           {errors.senha && (
             <p className="text-sm text-destructive">{errors.senha.message}</p>
           )}
         </div>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2Icon className="size-4 animate-spin" />}
           Entrar
         </Button>
       </form>
 
-      <div className="space-y-2 border-t pt-4">
-        <p className="text-xs text-muted-foreground">Preenchimento rápido (demo)</p>
+      <div className="space-y-2.5 rounded-lg border border-dashed bg-muted/40 p-3">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <SparklesIcon className="size-3.5 text-primary" />
+          Preenchimento Rápido (Demo)
+        </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {DEMOS.map((demo) => (
+          {DEMOS.map(({ label, hint, email, senha, Icon }) => (
             <Button
-              key={demo.email}
+              key={email}
               type="button"
-              variant="secondary"
+              variant="outline"
               size="sm"
               disabled={isSubmitting}
-              onClick={() => reset({ email: demo.email, senha: demo.senha })}
+              title={`Preencher ${hint}`}
+              onClick={() => reset({ email, senha })}
             >
-              {demo.label}
+              <Icon className="size-3.5 text-muted-foreground" />
+              {label}
             </Button>
           ))}
         </div>

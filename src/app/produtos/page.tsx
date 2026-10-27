@@ -6,12 +6,14 @@ import { ChevronLeftIcon, ChevronRightIcon, PackageIcon, PlusIcon } from "lucide
 import { toast } from "sonner";
 
 import { DeleteProductModal } from "@/components/produtos/DeleteProductModal";
+import { ExportProductsButton } from "@/components/produtos/ExportProductsButton";
 import {
   ProductFilters,
   type FiltrosAplicados,
   type SortKey,
 } from "@/components/produtos/ProductFilters";
 import { ProductList, ProductListSkeleton } from "@/components/produtos/ProductList";
+import { ProductStats } from "@/components/produtos/ProductStats";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/services/api";
@@ -121,12 +123,21 @@ export default function ProdutosPage() {
             Gerencie o catálogo do marketplace.
           </p>
         </div>
-        {canEdit && (
-          <Link href="/produtos/novo" className={buttonVariants({ size: "lg" })}>
-            <PlusIcon /> Novo Produto
-          </Link>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportProductsButton produtos={produtos} disabled={loading} />
+          {canEdit && (
+            <Link href="/produtos/novo" className={buttonVariants({ size: "lg" })}>
+              <PlusIcon /> Novo Produto
+            </Link>
+          )}
+        </div>
       </div>
+
+      <ProductStats
+        produtos={produtos}
+        totalElements={page?.totalElements ?? 0}
+        loading={loading}
+      />
 
       <ProductFilters
         categorias={categorias}
