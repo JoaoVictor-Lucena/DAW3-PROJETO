@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
@@ -35,10 +36,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <Header />
-            {children}
-          </AuthProvider>
+          <Suspense fallback={null}>
+            <AuthProvider>
+              <Header />
+              {children}
+            </AuthProvider>
+          </Suspense>
           <Toaster richColors />
         </ThemeProvider>
       </body>
