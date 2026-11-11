@@ -127,7 +127,9 @@ export default function ProdutosPage() {
         <div>
           <h1 className="text-2xl font-bold">Produtos</h1>
           <p className="text-sm text-muted-foreground">
-            Gerencie o catálogo do marketplace.
+            {canEdit
+              ? "Gerencie o catálogo do marketplace."
+              : "Encontre produtos de todas as lojas do marketplace."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
