@@ -102,6 +102,11 @@ export default function ProdutosPage() {
 
   const hasFilters = Object.values(filtros).some((v) => v !== undefined);
 
+  const carregarTodosProdutos = React.useCallback(
+    async () => sortProdutos(await produtoService.buscarTodos(filtros), sort),
+    [filtros, sort],
+  );
+
   function handleApply(next: FiltrosAplicados) {
     setFiltros(next);
     setPageIndex(0);
@@ -133,7 +138,10 @@ export default function ProdutosPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ExportProductsButton produtos={produtos} disabled={loading} />
+          <ExportProductsButton
+            carregarProdutos={carregarTodosProdutos}
+            disabled={loading || !page?.totalElements}
+          />
           {canEdit && (
             <Link href="/produtos/novo" className={buttonVariants({ size: "lg" })}>
               <PlusIcon /> Novo Produto

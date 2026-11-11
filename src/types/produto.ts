@@ -25,4 +25,5 @@ export interface ProdutoFiltros {
   precoMin?: number;
   precoMax?: number;
   page?: number;
+  size?: number;
 }
