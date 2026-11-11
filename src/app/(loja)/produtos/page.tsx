@@ -102,6 +102,11 @@ export default function ProdutosPage() {
 
   const hasFilters = Object.values(filtros).some((v) => v !== undefined);
 
+  const carregarTodosProdutos = React.useCallback(
+    async () => sortProdutos(await produtoService.buscarTodos(filtros), sort),
+    [filtros, sort],
+  );
+
   function handleApply(next: FiltrosAplicados) {
     setFiltros(next);
     setPageIndex(0);
@@ -127,11 +132,16 @@ export default function ProdutosPage() {
         <div>
           <h1 className="text-2xl font-bold">Produtos</h1>
           <p className="text-sm text-muted-foreground">
-            Gerencie o catálogo do marketplace.
+            {canEdit
+              ? "Gerencie o catálogo do marketplace."
+              : "Encontre produtos de todas as lojas do marketplace."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ExportProductsButton produtos={produtos} disabled={loading} />
+          <ExportProductsButton
+            carregarProdutos={carregarTodosProdutos}
+            disabled={loading || !page?.totalElements}
+          />
           {canEdit && (
             <Link href="/produtos/novo" className={buttonVariants({ size: "lg" })}>
               <PlusIcon /> Novo Produto

@@ -8,13 +8,16 @@ export const avaliacaoService = {
     return normalizePage(await api.get<RawPage<Avaliacao>>(BASE, { query: { page } }));
   },
 
+  /** Usa o filtro `?idProduto=`, que é público (o visitante vê as avaliações sem logar). */
   async listarPorProduto(idProduto: number): Promise<Avaliacao[]> {
     const todas: Avaliacao[] = [];
     let page = 0;
     let atual: Page<Avaliacao>;
     do {
-      atual = await this.listar(page);
-      todas.push(...atual.content.filter((a) => a.idProduto === idProduto));
+      atual = normalizePage(
+        await api.get<RawPage<Avaliacao>>(BASE, { query: { idProduto, page } }),
+      );
+      todas.push(...atual.content);
       page += 1;
     } while (!atual.last && page < atual.totalPages);
     return todas;
