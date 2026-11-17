@@ -4,6 +4,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
+import { FavoritosProvider } from "@/context/FavoritosContext";
 import { NotificacoesProvider } from "@/context/NotificacoesContext";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -38,7 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <Suspense fallback={null}>
             <AuthProvider>
-              <NotificacoesProvider>{children}</NotificacoesProvider>
+              <FavoritosProvider>
+                <NotificacoesProvider>{children}</NotificacoesProvider>
+              </FavoritosProvider>
             </AuthProvider>
           </Suspense>
           <Toaster richColors />
