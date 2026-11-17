@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { DatabaseIcon, Loader2Icon, Trash2Icon } from "lucide-react";
+import { DatabaseIcon, Loader2Icon, RotateCcwIcon, Trash2Icon, UsersIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { CabecalhoPagina } from "@/components/admin/CabecalhoPagina";
@@ -35,6 +35,24 @@ export default function AdminFerramentasPage() {
     }
   }
 
+  function pedirRestauracao() {
+    setConfirmacao({
+      titulo: "Restaurar a demonstração?",
+      descricao:
+        "Apaga todos os dados e recria a carga de demonstração: lojas com descrição e banner, produtos com imagem, "
+        + "clientes com endereço, pedidos em todas as etapas, avaliações, cupons, favoritos e notificações. "
+        + "Esta ação não pode ser desfeita.",
+      acao: "Restaurar demonstração",
+      destrutiva: true,
+      executar: async () => {
+        await seedService.resetar();
+        toast.success("Demonstração restaurada. Use as contas de demonstração para entrar.");
+        notifySeedUpdated();
+        router.refresh();
+      },
+    });
+  }
+
   function pedirLimpeza() {
     setConfirmacao({
       titulo: "Limpar banco de dados?",
@@ -59,6 +77,22 @@ export default function AdminFerramentasPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2">
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <RotateCcwIcon className="size-5 text-primary" />
+            <CardTitle className="text-base">Restaurar demonstração</CardTitle>
+            <CardDescription>
+              Volta o banco para a carga completa de demonstração, com dados em todos os painéis. Ideal antes
+              de gravar o vídeo ou apresentar.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button onClick={pedirRestauracao} disabled={populando}>
+              <RotateCcwIcon /> Restaurar demonstração
+            </Button>
+          </CardFooter>
+        </Card>
+
         <Card>
           <CardHeader>
             <DatabaseIcon className="size-5 text-primary" />
@@ -91,6 +125,42 @@ export default function AdminFerramentasPage() {
           </CardFooter>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <UsersIcon className="size-5 text-primary" />
+          <CardTitle className="text-base">Contas de demonstração</CardTitle>
+          <CardDescription>Criadas pela carga de demonstração (os números vão de 1 a 50).</CardDescription>
+        </CardHeader>
+        <div className="overflow-x-auto px-4 pb-4">
+          <table className="w-full text-sm">
+            <thead className="text-left text-muted-foreground">
+              <tr>
+                <th className="py-1 pr-4 font-medium">Perfil</th>
+                <th className="py-1 pr-4 font-medium">E-mail</th>
+                <th className="py-1 font-medium">Senha</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono text-xs">
+              <tr>
+                <td className="py-1 pr-4 font-sans">Admin</td>
+                <td className="py-1 pr-4">admin@marketplace.com</td>
+                <td className="py-1">admin123</td>
+              </tr>
+              <tr>
+                <td className="py-1 pr-4 font-sans">Vendedor (com loja)</td>
+                <td className="py-1 pr-4">vendedor1@eletronicos.com … vendedor5@pets.com</td>
+                <td className="py-1">senha123</td>
+              </tr>
+              <tr>
+                <td className="py-1 pr-4 font-sans">Cliente</td>
+                <td className="py-1 pr-4">cliente1@email.com … cliente50@email.com</td>
+                <td className="py-1">senha123</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       <Confirmar pedido={confirmacao} onFechar={() => setConfirmacao(null)} />
     </>
