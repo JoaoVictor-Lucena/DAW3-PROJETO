@@ -4,6 +4,9 @@ import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { ModalProvider } from "@/context/ModalContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -37,7 +40,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <Suspense fallback={null}>
             <AuthProvider>
-              {children}
+              <CartProvider>
+                <ModalProvider>
+                  <TooltipProvider>{children}</TooltipProvider>
+                </ModalProvider>
+              </CartProvider>
             </AuthProvider>
           </Suspense>
           <Toaster richColors />

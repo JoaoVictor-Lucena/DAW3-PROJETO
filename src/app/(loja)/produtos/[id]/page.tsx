@@ -24,6 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AddToCartButton, BuyNowButton } from "@/components/produtos/PurchaseButtons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/AuthContext";
 import { formatBRL, formatDateTime } from "@/lib/format";
@@ -183,6 +184,11 @@ export default function DetalheProdutoPage() {
                     </span>
                   </p>
                 </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <AddToCartButton produtoId={produto.id} disabled={produto.estoque === 0} />
+                <BuyNowButton produtoId={produto.id} disabled={produto.estoque === 0} />
               </div>
 
               <div className="space-y-1.5">

@@ -19,6 +19,8 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { destinoAposLogin, redirectSeguro } from "@/lib/auth-routes";
 
+// IMPORTANTE: a página /login mantém os botões de Demo (admin/vendedor/cliente) intactos
+// para apresentação. Ela ignora o useRequireAuth e faz login direto.
 type Mode = "login" | "register";
 
 export function LoginPage() {
