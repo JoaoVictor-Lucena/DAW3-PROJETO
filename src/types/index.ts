@@ -9,3 +9,4 @@ export * from "./vendedor";
 export * from "./admin";
 export * from "./pedido";
 export * from "./carrinho";
+export * from "./notificacao";

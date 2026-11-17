@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import { DeleteProductModal } from "@/components/produtos/DeleteProductModal";
+import { BotaoFavorito } from "@/components/produtos/BotaoFavorito";
 import { StockBadge } from "@/components/produtos/StockBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -156,7 +157,10 @@ export default function DetalheProdutoPage() {
                     {produto.nome}
                   </CardTitle>
                 </div>
-                <Badge variant="secondary">{produto.nomeCategoria}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{produto.nomeCategoria}</Badge>
+                  <BotaoFavorito idProduto={produto.id} nome={produto.nome} comTexto />
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">

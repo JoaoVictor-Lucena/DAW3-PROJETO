@@ -10,6 +10,7 @@ import {
   StoreIcon,
 } from "lucide-react";
 
+import { SinoNotificacoes } from "@/components/layout/SinoNotificacoes";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -75,6 +76,7 @@ export function Header() {
             </>
           )}
 
+          {user && <SinoNotificacoes />}
           <ThemeToggle />
 
           {user ? (
