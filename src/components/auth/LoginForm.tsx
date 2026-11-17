@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon, ShieldCheckIcon, SparklesIcon, StoreIcon } from "lucide-react";
+import { Loader2Icon, ShieldCheckIcon, ShoppingBagIcon, SparklesIcon, StoreIcon } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -34,6 +34,13 @@ const DEMOS = [
     email: "vendedor1@eletronicos.com",
     senha: "senha123",
     Icon: StoreIcon,
+  },
+  {
+    label: "Demo: Cliente",
+    hint: "cliente1@email.com",
+    email: "cliente1@email.com",
+    senha: "senha123",
+    Icon: ShoppingBagIcon,
   },
 ] as const;
 
@@ -104,7 +111,7 @@ export function LoginForm() {
           <SparklesIcon className="size-3.5 text-primary" />
           Preenchimento Rápido (Demo)
         </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {DEMOS.map(({ label, hint, email, senha, Icon }) => (
             <Button
               key={email}
