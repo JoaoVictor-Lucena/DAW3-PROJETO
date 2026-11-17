@@ -6,3 +6,5 @@ export * from "./page";
 export * from "./problem-detail";
 export * from "./produto";
 export * from "./vendedor";
+export * from "./admin";
+export * from "./pedido";

@@ -184,7 +184,7 @@ export default function ProdutosPage() {
             {hasFilters
               ? "Tente ajustar ou limpar os filtros."
               : user?.role === "ADMIN"
-                ? 'Clique em "Popular Banco (Seed)" no topo para gerar dados de teste.'
+                ? 'Use "Popular banco" em Meu painel → Ferramentas para gerar dados de teste.'
                 : "Volte mais tarde ou cadastre um novo produto."}
           </p>
         </div>
