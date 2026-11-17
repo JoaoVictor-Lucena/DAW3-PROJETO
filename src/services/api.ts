@@ -4,6 +4,9 @@ const API_BASE_URL = "/api";
 
 const TOKEN_KEY = "marketplace.token";
 
+/** Disparado quando o back-end recusa o token salvo (expirado ou inválido). */
+export const SESSAO_EXPIRADA_EVENT = "marketplace:sessao-expirada";
+
 export const tokenStorage = {
   get(): string | null {
     if (typeof window === "undefined") return null;
@@ -91,12 +94,14 @@ function buildUrl(path: string, query?: Record<string, QueryValue>): string {
 async function request<T>(
   method: string,
   path: string,
-  { body, query, skipAuth, headers, ...init }: RequestOptions = {},
+  options: RequestOptions = {},
 ): Promise<T> {
+  const { body, query, skipAuth, headers, ...init } = options;
   const finalHeaders = new Headers(headers);
   finalHeaders.set("Accept", "application/json");
   if (body !== undefined) finalHeaders.set("Content-Type", "application/json");
 
+  // Sem token (visitante), a requisição vai sem o header Authorization.
   const token = skipAuth ? null : tokenStorage.get();
   if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
 
@@ -115,6 +120,14 @@ async function request<T>(
       status: 0,
       detail: "Não foi possível conectar ao servidor.",
     });
+  }
+
+  if (response.status === 401 && token) {
+    // Token expirado ou inválido: encerra a sessão e avisa o AuthContext.
+    tokenStorage.clear();
+    window.dispatchEvent(new Event(SESSAO_EXPIRADA_EVENT));
+    // Leituras do catálogo são públicas: tenta de novo como visitante.
+    if (method === "GET") return request<T>(method, path, { ...options, skipAuth: true });
   }
 
   if (!response.ok) throw await toApiError(response);

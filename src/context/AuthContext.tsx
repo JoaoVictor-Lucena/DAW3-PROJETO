@@ -2,12 +2,15 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { authService } from "@/services/authService";
-import { tokenStorage } from "@/services/api";
+import { SESSAO_EXPIRADA_EVENT, tokenStorage } from "@/services/api";
 import type { LoginRequest, Role } from "@/types";
 
 export interface AuthUser {
+  id?: number;
+  nome?: string;
   email: string;
   role: Role;
 }
@@ -16,13 +19,13 @@ interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
   ready: boolean;
+  /** true logo depois de um logout voluntário, até a navegação mudar de rota. */
+  saindo: boolean;
   login: (credentials: LoginRequest) => Promise<AuthUser>;
   logout: () => void;
 }
 
 const USER_KEY = "marketplace.user";
-const LOGIN_PATH = "/login";
-const HOME_PATH = "/produtos";
 
 const listeners = new Set<() => void>();
 
@@ -66,44 +69,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [snapshot],
   );
   const user = React.useMemo<AuthUser | null>(
-    () => (session ? { email: session.email, role: session.role } : null),
+    () =>
+      session
+        ? { id: session.id, nome: session.nome, email: session.email, role: session.role }
+        : null,
     [session],
   );
   const token = session?.token ?? null;
 
+  // Rota em que o usuário clicou em "Sair". Enquanto ainda estiver nela, os guards
+  // não mandam para o login (o logout já está levando para a vitrine).
+  const [saiuEm, setSaiuEm] = React.useState<string | null>(null);
+  const saindo = saiuEm !== null && saiuEm === pathname;
+
   const login = React.useCallback(async (credentials: LoginRequest) => {
     const res = await authService.login(credentials);
-    const nextUser: AuthUser = { email: res.email, role: res.role };
+    const nextUser: AuthUser = { id: res.id, nome: res.nome, email: res.email, role: res.role };
     tokenStorage.set(res.token);
     window.localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setSaiuEm(null);
     emit();
     return nextUser;
   }, []);
 
-  const logout = React.useCallback(() => {
+  const limparSessao = React.useCallback(() => {
     tokenStorage.clear();
     window.localStorage.removeItem(USER_KEY);
     emit();
   }, []);
 
-  const isLoginRoute = pathname === LOGIN_PATH;
-  const redirectTo = !ready ? null : !user && !isLoginRoute ? LOGIN_PATH : user && isLoginRoute ? HOME_PATH : null;
+  const logout = React.useCallback(() => {
+    setSaiuEm(pathname);
+    limparSessao();
+    router.replace("/");
+  }, [limparSessao, pathname, router]);
 
   React.useEffect(() => {
-    if (redirectTo) router.replace(redirectTo);
-  }, [redirectTo, router]);
+    function onSessaoExpirada() {
+      if (!window.localStorage.getItem(USER_KEY)) return;
+      limparSessao();
+      toast.warning("Sua sessão expirou. Entre novamente para continuar.");
+    }
+    window.addEventListener(SESSAO_EXPIRADA_EVENT, onSessaoExpirada);
+    return () => window.removeEventListener(SESSAO_EXPIRADA_EVENT, onSessaoExpirada);
+  }, [limparSessao]);
 
   const value = React.useMemo(
-    () => ({ user, token, ready, login, logout }),
-    [user, token, ready, login, logout],
+    () => ({ user, token, ready, saindo, login, logout }),
+    [user, token, ready, saindo, login, logout],
   );
 
-  const blocked = !ready || redirectTo !== null;
-
+  // A sessão fica no localStorage: só renderiza depois de montar no cliente,
+  // para não piscar a tela de "visitante" para quem já está logado.
   return (
-    <AuthContext.Provider value={value}>
-      {blocked ? null : children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={value}>{ready ? children : null}</AuthContext.Provider>
   );
 }
 

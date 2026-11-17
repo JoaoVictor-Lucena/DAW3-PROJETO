@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon, ShieldCheckIcon, SparklesIcon, StoreIcon } from "lucide-react";
@@ -40,7 +39,6 @@ const DEMOS = [
 
 export function LoginForm() {
   const { login } = useAuth();
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -54,9 +52,9 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginValues) {
     try {
+      // O redirecionamento (para `?redirect=` ou para o painel do perfil) fica no LoginPage.
       const user = await login(values);
-      toast.success(`Bem-vindo, ${user.email}!`);
-      router.replace("/produtos");
+      toast.success(`Bem-vindo, ${user.nome ?? user.email}!`);
     } catch (error) {
       if (!applyApiFieldErrors(error, setError, ["email", "senha"])) {
         toast.error(getErrorMessage(error));

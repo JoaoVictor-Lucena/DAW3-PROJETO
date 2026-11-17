@@ -2,10 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DatabaseIcon,
+  LayoutDashboardIcon,
   Loader2Icon,
+  LogInIcon,
   LogOutIcon,
   StoreIcon,
   Trash2Icon,
@@ -26,19 +28,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { loginComRedirect, painelDoPerfil } from "@/lib/auth-routes";
 import { getErrorMessage } from "@/services/api";
 import { notifySeedUpdated, seedService } from "@/services/seedService";
 
 export function Header() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [seeding, setSeeding] = React.useState(false);
   const [confirmClear, setConfirmClear] = React.useState(false);
   const [clearing, setClearing] = React.useState(false);
-
-  if (!user) return null;
 
   async function handleSeed() {
     setSeeding(true);
@@ -82,7 +84,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
         <nav className="flex items-center gap-4">
-          <Link href="/produtos" className="flex items-center gap-2 font-semibold">
+          <Link href="/" className="flex items-center gap-2 font-semibold">
             <StoreIcon className="size-5" />
             Marketplace
           </Link>
@@ -95,12 +97,25 @@ export function Header() {
         </nav>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
-            {user.email}
-          </span>
-          <Badge variant="secondary">{user.role}</Badge>
+          {user ? (
+            <>
+              <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
+                {user.nome ?? user.email}
+              </span>
+              <Badge variant="secondary">{user.role}</Badge>
+              <Link
+                href={painelDoPerfil(user.role)}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <LayoutDashboardIcon className="size-4" />
+                <span className="hidden sm:inline">
+                  {user.role === "CLIENTE" ? "Minha conta" : "Meu painel"}
+                </span>
+              </Link>
+            </>
+          ) : null}
 
-          {user.role === "ADMIN" && (
+          {user?.role === "ADMIN" && (
             <>
               <Button
                 variant="outline"
@@ -137,10 +152,17 @@ export function Header() {
 
           <ThemeToggle />
 
-          <Button variant="outline" size="sm" onClick={logout}>
-            <LogOutIcon className="size-4" />
-            Sair
-          </Button>
+          {user ? (
+            <Button variant="outline" size="sm" onClick={logout}>
+              <LogOutIcon className="size-4" />
+              Sair
+            </Button>
+          ) : (
+            <Link href={loginComRedirect(pathname)} className={buttonVariants({ size: "sm" })}>
+              <LogInIcon className="size-4" />
+              Entrar
+            </Link>
+          )}
         </div>
       </div>
 

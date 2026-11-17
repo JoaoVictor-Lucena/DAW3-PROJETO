@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { Header } from "@/components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -38,7 +37,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <Suspense fallback={null}>
             <AuthProvider>
-              <Header />
               {children}
             </AuthProvider>
           </Suspense>
