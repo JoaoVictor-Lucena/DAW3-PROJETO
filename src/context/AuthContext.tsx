@@ -119,11 +119,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user, token, ready, saindo, login, logout],
   );
 
-  // A sessão fica no localStorage: só renderiza depois de montar no cliente,
-  // para não piscar a tela de "visitante" para quem já está logado.
-  return (
-    <AuthContext.Provider value={value}>{ready ? children : null}</AuthContext.Provider>
-  );
+  // A página é sempre renderizada (inclusive no servidor), para o Next conseguir pré-renderizar
+  // e validar a navegação. A sessão fica no localStorage e só existe no navegador: quem depende
+  // dela (RoleGuard, Header) espera `ready` antes de decidir o que mostrar.
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {

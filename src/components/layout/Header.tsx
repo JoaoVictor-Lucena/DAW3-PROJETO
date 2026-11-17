@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { loginComRedirect, painelDoPerfil } from "@/lib/auth-routes";
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, ready } = useAuth();
   const pathname = usePathname();
 
   return (
@@ -32,37 +32,44 @@ export function Header() {
         </nav>
 
         <div className="flex flex-wrap items-center gap-2">
-          {user && (
-            <>
-              <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
-                {user.nome ?? user.email}
-              </span>
-              <Badge variant="secondary">{user.role}</Badge>
-              <Link
-                href={painelDoPerfil(user.role)}
-                className={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <LayoutDashboardIcon className="size-4" />
-                <span className="hidden sm:inline">
-                  {user.role === "CLIENTE" ? "Minha conta" : "Meu painel"}
-                </span>
-              </Link>
-            </>
-          )}
-
-          {user && <SinoNotificacoes />}
-          <ThemeToggle />
-
-          {user ? (
-            <Button variant="outline" size="sm" onClick={logout}>
-              <LogOutIcon className="size-4" />
-              Sair
-            </Button>
+          {/* Até ler a sessão, não mostra nem "Entrar" nem o menu do usuário (evita piscar). */}
+          {!ready ? (
+            <div className="h-8 w-40" aria-hidden />
           ) : (
-            <Link href={loginComRedirect(pathname)} className={buttonVariants({ size: "sm" })}>
-              <LogInIcon className="size-4" />
-              Entrar
-            </Link>
+            <>
+              {user && (
+                <>
+                  <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
+                    {user.nome ?? user.email}
+                  </span>
+                  <Badge variant="secondary">{user.role}</Badge>
+                  <Link
+                    href={painelDoPerfil(user.role)}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    <LayoutDashboardIcon className="size-4" />
+                    <span className="hidden sm:inline">
+                      {user.role === "CLIENTE" ? "Minha conta" : "Meu painel"}
+                    </span>
+                  </Link>
+                </>
+              )}
+
+              {user && <SinoNotificacoes />}
+              <ThemeToggle />
+
+              {user ? (
+                <Button variant="outline" size="sm" onClick={logout}>
+                  <LogOutIcon className="size-4" />
+                  Sair
+                </Button>
+              ) : (
+                <Link href={loginComRedirect(pathname)} className={buttonVariants({ size: "sm" })}>
+                  <LogInIcon className="size-4" />
+                  Entrar
+                </Link>
+              )}
+            </>
           )}
         </div>
       </div>
