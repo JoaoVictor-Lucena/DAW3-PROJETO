@@ -72,7 +72,7 @@ export default function FavoritosPage() {
   const produtos = dados?.content ?? [];
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
+    <>
       <div>
         <h1 className="text-2xl font-bold">Lista de desejos</h1>
         <p className="text-sm text-muted-foreground">Produtos que você salvou para comprar depois.</p>
@@ -105,6 +105,6 @@ export default function FavoritosPage() {
       )}
 
       <Paginacao page={dados} disabled={carregando} onChange={setPage} />
-    </main>
+    </>
   );
 }
