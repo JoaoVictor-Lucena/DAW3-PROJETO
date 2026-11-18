@@ -22,7 +22,7 @@ import { applyApiFieldErrors } from "@/lib/form-errors";
 import { formatCurrencyInput, numberToCurrencyInput, parseCurrencyInput } from "@/lib/format";
 import { adminService } from "@/services/adminService";
 import { getErrorMessage } from "@/services/api";
-import type { Cupom, StatusCupom } from "@/types";
+import type { CupomAdmin, StatusCupom } from "@/types";
 
 function hojeISO() {
   const d = new Date();
@@ -56,7 +56,7 @@ export function CupomFormDialog({
   onSalvo,
 }: {
   aberto: boolean;
-  cupom: Cupom | null;
+  cupom: CupomAdmin | null;
   onFechar: () => void;
   onSalvo: () => void;
 }) {

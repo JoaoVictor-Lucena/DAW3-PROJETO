@@ -2,18 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboardIcon, LogInIcon, LogOutIcon, StoreIcon } from "lucide-react";
+import {
+  LayoutDashboardIcon,
+  LogInIcon,
+  LogOutIcon,
+  ShoppingCart,
+  StoreIcon,
+} from "lucide-react";
 
 import { SinoNotificacoes } from "@/components/layout/SinoNotificacoes";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 import { loginComRedirect, painelDoPerfil } from "@/lib/auth-routes";
 
 export function Header() {
   const { user, logout, ready } = useAuth();
+  const { items } = useCart();
   const pathname = usePathname();
+
+  const cartCount = items.reduce((acc, item) => acc + item.quantidade, 0);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
@@ -37,6 +47,22 @@ export function Header() {
             <div className="h-8 w-40" aria-hidden />
           ) : (
             <>
+              {(!user || user.role === "CLIENTE") && (
+                <Link
+                  href="/carrinho"
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  aria-label={`Carrinho com ${cartCount} itens`}
+                >
+                  <ShoppingCart className="size-4" />
+                  <span className="hidden sm:inline">Carrinho</span>
+                  {cartCount > 0 && (
+                    <Badge variant="default" className="ml-1 h-5 min-w-5 px-1.5 text-xs">
+                      {cartCount}
+                    </Badge>
+                  )}
+                </Link>
+              )}
+
               {user && (
                 <>
                   <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">

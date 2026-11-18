@@ -9,7 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { getErrorMessage } from "@/services/api";
 
@@ -44,7 +44,7 @@ const DEMOS = [
   },
 ] as const;
 
-export function LoginForm() {
+export function LoginForm({ onSuccess }: { onSuccess?: (user: AuthUser) => void }) {
   const { login } = useAuth();
   const {
     register,
@@ -62,6 +62,7 @@ export function LoginForm() {
       // O redirecionamento (para `?redirect=` ou para o painel do perfil) fica no LoginPage.
       const user = await login(values);
       toast.success(`Bem-vindo, ${user.nome ?? user.email}!`);
+      onSuccess?.(user);
     } catch (error) {
       if (!applyApiFieldErrors(error, setError, ["email", "senha"])) {
         toast.error(getErrorMessage(error));

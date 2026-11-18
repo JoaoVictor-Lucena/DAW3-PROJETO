@@ -10,6 +10,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { formatCpfCnpj, formatPhone } from "@/lib/format";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { getErrorMessage } from "@/services/api";
@@ -57,12 +58,19 @@ type RegisterValues = z.infer<typeof vendedorSchema>;
 
 const FIELDS = ["nome", "email", "senha", "telefone", "razaoSocial", "cnpjCpf"] as const;
 
-export function RegisterForm({ onRegistered }: { onRegistered: () => void }) {
+export interface RegisterFormProps {
+  onRegistered?: () => void;
+  onSuccess?: (user: AuthUser) => void;
+  /** Esconde a opção "Vendedor" (ex.: modal de login sob demanda, que é só para compras). */
+  apenasCliente?: boolean;
+}
+
+export function RegisterForm({ onRegistered, onSuccess, apenasCliente }: RegisterFormProps) {
   const [tipo, setTipo] = React.useState<Tipo>("CLIENTE");
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-2">
+      <div className={apenasCliente ? "hidden" : "grid grid-cols-2 gap-2"}>
         {(["CLIENTE", "VENDEDOR"] as const).map((t) => (
           <Button
             key={t}
@@ -76,7 +84,12 @@ export function RegisterForm({ onRegistered }: { onRegistered: () => void }) {
           </Button>
         ))}
       </div>
-      <RegisterFields key={tipo} tipo={tipo} onRegistered={onRegistered} />
+      <RegisterFields
+        key={tipo}
+        tipo={tipo}
+        onRegistered={onRegistered}
+        onSuccess={onSuccess}
+      />
     </div>
   );
 }
@@ -84,10 +97,13 @@ export function RegisterForm({ onRegistered }: { onRegistered: () => void }) {
 function RegisterFields({
   tipo,
   onRegistered,
+  onSuccess,
 }: {
   tipo: Tipo;
-  onRegistered: () => void;
+  onRegistered?: () => void;
+  onSuccess?: (user: AuthUser) => void;
 }) {
+  const { login } = useAuth();
   const isVendedor = tipo === "VENDEDOR";
   const {
     register,
@@ -108,6 +124,7 @@ function RegisterFields({
   });
 
   async function onSubmit(v: RegisterValues) {
+    let registrado = false;
     try {
       if (isVendedor) {
         await authService.registrarVendedor({
@@ -125,9 +142,21 @@ function RegisterFields({
           telefone: v.telefone || undefined,
         });
       }
-      toast.success("Conta criada! Agora é só entrar.");
-      onRegistered();
+      if (!onSuccess) {
+        toast.success("Conta criada! Agora é só entrar.");
+        onRegistered?.();
+        return;
+      }
+      registrado = true;
+      const user = await login({ email: v.email, senha: v.senha });
+      toast.success(`Conta criada! Bem-vindo, ${user.nome ?? user.email}!`);
+      onSuccess(user);
     } catch (error) {
+      if (registrado) {
+        toast.error("Conta criada, mas não foi possível entrar automaticamente. Faça login.");
+        onRegistered?.();
+        return;
+      }
       if (!applyApiFieldErrors(error, setError, FIELDS)) {
         toast.error(getErrorMessage(error));
       }
