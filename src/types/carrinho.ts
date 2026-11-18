@@ -18,3 +18,8 @@ export interface Carrinho {
   quantidadeItens: number;
   itens: ItemCarrinho[];
 }
+
+export interface ItemCarrinhoRequest {
+  idProduto: number;
+  quantidade: number;
+}

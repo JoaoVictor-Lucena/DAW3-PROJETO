@@ -8,8 +8,8 @@ export * from "./produto";
 export * from "./vendedor";
 export * from "./admin";
 export * from "./pedido";
-export * from "./notificacao";
 export * from "./carrinho";
+export * from "./notificacao";
 
 export interface Endereco {
   id?: number;
