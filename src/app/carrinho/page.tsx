@@ -29,52 +29,47 @@ import { useCart } from "@/context/CartContext";
 import { BLOCKED_MESSAGE, useRequireAuth } from "@/hooks/useRequireAuth";
 import { formatBRL } from "@/lib/format";
 import { getErrorMessage } from "@/services/api";
-import { checkoutService } from "@/services/checkoutService";
 import { produtoService } from "@/services/produtoService";
-import type { CheckoutRequest, Produto } from "@/types";
-
-// TODO: substituir pelos dados reais quando existirem as telas de endereço e pagamento.
-const CHECKOUT_MOCK: CheckoutRequest = {
-  idEndereco: 1,
-  metodoPagamento: "PIX",
-  codigoCupom: "CUPOM01",
-};
+import type { Produto } from "@/types";
 
 export default function CarrinhoPage() {
   const router = useRouter();
-  const { items, removeItem, clearCart } = useCart();
+  const { items, removeItem } = useCart();
   const [detalhes, setDetalhes] = React.useState<Record<number, Produto>>({});
-  const [finalizando, setFinalizando] = React.useState(false);
   const [removendoId, setRemovendoId] = React.useState<number | null>(null);
+  // Ids já consultados (com sucesso ou não): evita repetir a busca em loop quando ela falha.
+  const consultados = React.useRef(new Set<number>());
+  const [semDetalhe, setSemDetalhe] = React.useState<number[]>([]);
 
   // Busca detalhes de produtos cujos dados (nome/preço) ainda não estejam no item
   React.useEffect(() => {
     const idsFaltantes = items
+      .filter((i) => !(i.nome && i.preco !== undefined))
       .map((i) => i.produtoId)
-      .filter((id) => !detalhes[id]);
+      .filter((id) => !detalhes[id] && !consultados.current.has(id));
 
     if (idsFaltantes.length === 0) return;
-
-    let cancelado = false;
+    idsFaltantes.forEach((id) => consultados.current.add(id));
 
     Promise.allSettled(idsFaltantes.map((id) => produtoService.buscarPorId(id)))
       .then((resultados) => {
-        if (cancelado) return;
         const novos: Record<number, Produto> = {};
-        resultados.forEach((res) => {
+        const falhas: number[] = [];
+        resultados.forEach((res, i) => {
           if (res.status === "fulfilled" && res.value) {
             novos[res.value.id] = res.value;
+          } else {
+            falhas.push(idsFaltantes[i]);
           }
         });
-        setDetalhes((prev) => ({ ...prev, ...novos }));
+        if (Object.keys(novos).length > 0) setDetalhes((prev) => ({ ...prev, ...novos }));
+        if (falhas.length > 0) setSemDetalhe((prev) => [...prev, ...falhas]);
       });
-
-    return () => {
-      cancelado = true;
-    };
   }, [items, detalhes]);
 
-  const carregandoDetalhes = items.some((i) => !i.nome && !detalhes[i.produtoId]);
+  const carregandoDetalhes = items.some(
+    (i) => !i.nome && !detalhes[i.produtoId] && !semDetalhe.includes(i.produtoId),
+  );
 
   const itensFormatados = items.map((item) => {
     const prod = detalhes[item.produtoId];
@@ -86,24 +81,14 @@ export default function CarrinhoPage() {
 
   const total = itensFormatados.reduce((acc, i) => acc + i.subtotal, 0);
 
-  const executarCheckout = React.useCallback(async () => {
+  // O checkout real (endereço, pagamento e revisão) acontece em /checkout.
+  const executarCheckout = React.useCallback(() => {
     if (items.length === 0) {
       toast.warning("Seu carrinho está vazio.");
       return;
     }
-
-    try {
-      setFinalizando(true);
-      await checkoutService.checkout(CHECKOUT_MOCK);
-      clearCart();
-      toast.success("Compra realizada com sucesso!");
-      router.push("/checkout");
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setFinalizando(false);
-    }
-  }, [items.length, clearCart, router]);
+    router.push("/checkout");
+  }, [items.length, router]);
 
   const { requireAuth, isRoleBlocked } = useRequireAuth(executarCheckout);
 
@@ -123,10 +108,9 @@ export default function CarrinhoPage() {
     <Button
       size="lg"
       className="w-full sm:w-auto"
-      disabled={items.length === 0 || finalizando || isRoleBlocked}
+      disabled={items.length === 0 || isRoleBlocked}
       onClick={requireAuth}
     >
-      {finalizando && <Loader2Icon className="size-4 animate-spin" />}
       Finalizar Compra
     </Button>
   );

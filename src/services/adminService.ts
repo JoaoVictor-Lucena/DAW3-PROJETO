@@ -2,7 +2,7 @@ import { api, normalizePage } from "@/services/api";
 import type {
   AdminRequest,
   Avaliacao,
-  Cupom,
+  CupomAdmin,
   CupomRequest,
   DashboardAdmin,
   Page,
@@ -49,11 +49,11 @@ export const adminService = {
   removerAvaliacao: (id: number) => api.delete<void>(`/avaliacoes/${id}`),
 
   cupons: (filtros: { codigo?: string; status?: StatusCupom; page: number }) =>
-    pagina<Cupom>("/cupons/buscar", { ...filtros, codigo: filtros.codigo?.trim() }),
+    pagina<CupomAdmin>("/cupons/buscar", { ...filtros, codigo: filtros.codigo?.trim() }),
 
-  criarCupom: (dto: CupomRequest) => api.post<Cupom>("/cupons", dto),
+  criarCupom: (dto: CupomRequest) => api.post<CupomAdmin>("/cupons", dto),
 
-  atualizarCupom: (id: number, dto: CupomRequest) => api.patch<Cupom>(`/cupons/${id}`, dto),
+  atualizarCupom: (id: number, dto: CupomRequest) => api.patch<CupomAdmin>(`/cupons/${id}`, dto),
 
   removerCupom: (id: number) => api.delete<void>(`/cupons/${id}`),
 };

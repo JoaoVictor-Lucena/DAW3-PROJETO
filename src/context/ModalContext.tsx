@@ -71,14 +71,14 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
                 variant={mode === m ? "default" : "ghost"}
                 onClick={() => setMode(m)}
               >
-                {m === "login" ? "Entrar" : "Criar conta"}
+                {m === "login" ? "Entrar" : "Criar conta (cliente)"}
               </Button>
             ))}
           </div>
           {mode === "login" ? (
             <LoginForm onSuccess={handleLogged} />
           ) : (
-            <RegisterForm onRegistered={() => setMode("login")} onSuccess={handleLogged} />
+            <RegisterForm apenasCliente onRegistered={() => setMode("login")} onSuccess={handleLogged} />
           )}
         </DialogContent>
       </Dialog>

@@ -17,6 +17,11 @@ export interface CartItem {
 
 interface CartContextValue {
   items: CartItem[];
+  /** Carrinho completo do back-end (só para usuário logado), usado na revisão do checkout. */
+  carrinho: Carrinho | null;
+  carregando: boolean;
+  erro: string | null;
+  recarregar: () => void;
   addItem: (produtoId: number, quantidade?: number, extra?: { nome?: string; preco?: number }) => Promise<void>;
   removeItem: (produtoId: number) => Promise<void>;
   clearCart: () => void;
@@ -57,10 +62,10 @@ const fromApi = (c: Carrinho): CartItem[] =>
   }));
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, ready } = useAuth();
   const email = user?.email ?? null;
   const [local, setLocal] = React.useState<CartItem[]>(load);
-  const [remote, setRemote] = React.useState<{ email: string; items: CartItem[] } | null>(null);
+  const [remote, setRemote] = React.useState<{ email: string; carrinho: Carrinho | null; erro?: string } | null>(null);
 
   const mergedFor = React.useRef<string | null>(null);
 
@@ -81,20 +86,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           );
         }
         const carrinho = await cartService.getCart();
-        setRemote({ email, items: fromApi(carrinho) });
+        setRemote({ email, carrinho });
         if (pendentes.length) {
           save([]);
           setLocal([]);
         }
       } catch (error) {
         mergedFor.current = null;
+        setRemote({ email, carrinho: null, erro: getErrorMessage(error) });
         toast.error(getErrorMessage(error));
       }
     })();
   }, [email]);
 
   const refresh = React.useCallback(async (owner: string) => {
-    setRemote({ email: owner, items: fromApi(await cartService.getCart()) });
+    setRemote({ email: owner, carrinho: await cartService.getCart() });
   }, []);
 
   const addItem = React.useCallback(
@@ -146,14 +152,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     save([]);
     setLocal([]);
     if (email) {
-      setRemote({ email, items: [] });
+      setRemote({ email, carrinho: null });
     }
   }, [email]);
 
-  const value = React.useMemo(() => {
-    const items = email ? (remote?.email === email ? remote.items : []) : local;
-    return { items, addItem, removeItem, clearCart };
-  }, [email, remote, local, addItem, removeItem, clearCart]);
+  const recarregar = React.useCallback(() => {
+    if (email) void refresh(email).catch((error) => toast.error(getErrorMessage(error)));
+  }, [email, refresh]);
+
+  const value = React.useMemo<CartContextValue>(() => {
+    const doUsuario = email && remote?.email === email ? remote : null;
+    const carrinho = doUsuario?.carrinho ?? null;
+    return {
+      // Até ler a sessão no navegador, o carrinho fica vazio: igual ao HTML do servidor (sem hydration mismatch).
+      items: !ready ? [] : email ? (carrinho ? fromApi(carrinho) : []) : local,
+      carrinho,
+      carregando: !!email && doUsuario === null,
+      erro: doUsuario?.erro ?? null,
+      recarregar,
+      addItem,
+      removeItem,
+      clearCart,
+    };
+  }, [ready, email, remote, local, recarregar, addItem, removeItem, clearCart]);
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 

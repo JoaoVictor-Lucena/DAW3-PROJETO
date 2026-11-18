@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
@@ -20,13 +21,14 @@ export function RoleGuard({
   allow: Role[];
   children: React.ReactNode;
 }) {
-  const { user, saindo } = useAuth();
+  const { user, saindo, ready } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const allowed = !!user && allow.includes(user.role);
 
   React.useEffect(() => {
-    if (allowed || saindo) return;
+    // Antes de ler a sessão do localStorage não dá para saber se o visitante está logado.
+    if (!ready || allowed || saindo) return;
     if (!user) {
       router.replace(loginComRedirect(`${pathname}${window.location.search}`));
       return;
@@ -35,7 +37,14 @@ export function RoleGuard({
       id: "sem-permissao",
     });
     router.replace(painelDoPerfil(user.role));
-  }, [user, allowed, saindo, pathname, router]);
+  }, [user, allowed, saindo, ready, pathname, router]);
 
+  if (!ready) {
+    return (
+      <div className="flex flex-1 items-center justify-center py-20" aria-busy="true">
+        <Loader2Icon className="size-6 animate-spin text-muted-foreground" aria-label="Carregando" />
+      </div>
+    );
+  }
   return allowed ? <>{children}</> : null;
 }

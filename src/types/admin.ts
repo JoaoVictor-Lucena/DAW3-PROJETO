@@ -54,7 +54,7 @@ export interface AdminRequest {
 
 export type StatusCupom = "ATIVO" | "INATIVO";
 
-export interface Cupom {
+export interface CupomAdmin {
   id: number;
   codigo: string;
   valorDesconto: number;
