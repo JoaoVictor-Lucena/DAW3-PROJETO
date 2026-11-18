@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import { DeleteProductModal } from "@/components/produtos/DeleteProductModal";
+import { BotaoFavorito } from "@/components/produtos/BotaoFavorito";
 import { StockBadge } from "@/components/produtos/StockBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AddToCartButton, BuyNowButton } from "@/components/produtos/PurchaseButtons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/AuthContext";
 import { formatBRL, formatDateTime } from "@/lib/format";
@@ -155,7 +157,10 @@ export default function DetalheProdutoPage() {
                     {produto.nome}
                   </CardTitle>
                 </div>
-                <Badge variant="secondary">{produto.nomeCategoria}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{produto.nomeCategoria}</Badge>
+                  <BotaoFavorito idProduto={produto.id} nome={produto.nome} comTexto />
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -183,6 +188,11 @@ export default function DetalheProdutoPage() {
                     </span>
                   </p>
                 </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <AddToCartButton produtoId={produto.id} disabled={produto.estoque === 0} />
+                <BuyNowButton produtoId={produto.id} disabled={produto.estoque === 0} />
               </div>
 
               <div className="space-y-1.5">

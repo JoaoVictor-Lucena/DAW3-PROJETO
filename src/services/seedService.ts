@@ -226,6 +226,7 @@ async function gerarLoteAdicional(quantidade = 10): Promise<number> {
       estoque,
       idCategoria: categoria.id,
       idVendedor: vendedor.id,
+      imagemUrl: `https://loremflickr.com/640/640/product?lock=${randomInt(1, 100000)}`,
     });
     criados += 1;
   }

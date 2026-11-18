@@ -3,8 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { Header } from "@/components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { FavoritosProvider } from "@/context/FavoritosContext";
+import { ModalProvider } from "@/context/ModalContext";
+import { NotificacoesProvider } from "@/context/NotificacoesContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -38,8 +42,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <Suspense fallback={null}>
             <AuthProvider>
-              <Header />
-              {children}
+              <CartProvider>
+                <ModalProvider>
+                  <TooltipProvider>
+                    <FavoritosProvider>
+                      <NotificacoesProvider>{children}</NotificacoesProvider>
+                    </FavoritosProvider>
+                  </TooltipProvider>
+                </ModalProvider>
+              </CartProvider>
             </AuthProvider>
           </Suspense>
           <Toaster richColors />

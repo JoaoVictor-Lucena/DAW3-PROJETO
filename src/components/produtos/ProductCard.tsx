@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { EyeIcon, Trash2Icon } from "lucide-react";
 
+import { BotaoFavorito } from "@/components/produtos/BotaoFavorito";
 import { StockBadge } from "@/components/produtos/StockBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export function ProductActions({
 }: ProductActionProps & { produto: Produto }) {
   return (
     <div className="flex items-center gap-1.5">
+      <BotaoFavorito idProduto={produto.id} nome={produto.nome} className="size-8" />
       <Link
         href={`/produtos/${produto.id}`}
         className={buttonVariants({ variant: "outline", size: "sm" })}

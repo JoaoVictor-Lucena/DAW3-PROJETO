@@ -1,16 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon, ShieldCheckIcon, SparklesIcon, StoreIcon } from "lucide-react";
+import { Loader2Icon, ShieldCheckIcon, ShoppingBagIcon, SparklesIcon, StoreIcon } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, type AuthUser } from "@/context/AuthContext";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { getErrorMessage } from "@/services/api";
 
@@ -36,11 +35,17 @@ const DEMOS = [
     senha: "senha123",
     Icon: StoreIcon,
   },
+  {
+    label: "Demo: Cliente",
+    hint: "cliente1@email.com",
+    email: "cliente1@email.com",
+    senha: "senha123",
+    Icon: ShoppingBagIcon,
+  },
 ] as const;
 
-export function LoginForm() {
+export function LoginForm({ onSuccess }: { onSuccess?: (user: AuthUser) => void }) {
   const { login } = useAuth();
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -54,9 +59,10 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginValues) {
     try {
+      // O redirecionamento (para `?redirect=` ou para o painel do perfil) fica no LoginPage.
       const user = await login(values);
-      toast.success(`Bem-vindo, ${user.email}!`);
-      router.replace("/produtos");
+      toast.success(`Bem-vindo, ${user.nome ?? user.email}!`);
+      onSuccess?.(user);
     } catch (error) {
       if (!applyApiFieldErrors(error, setError, ["email", "senha"])) {
         toast.error(getErrorMessage(error));
@@ -106,7 +112,7 @@ export function LoginForm() {
           <SparklesIcon className="size-3.5 text-primary" />
           Preenchimento Rápido (Demo)
         </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {DEMOS.map(({ label, hint, email, senha, Icon }) => (
             <Button
               key={email}

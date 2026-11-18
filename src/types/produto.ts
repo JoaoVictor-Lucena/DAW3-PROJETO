@@ -8,6 +8,11 @@ export interface Produto {
   nomeCategoria: string;
   idVendedor: number;
   nomeVendedor: string;
+  imagemUrl?: string | null;
+  ativo?: boolean;
+  mediaAvaliacoes?: number | null;
+  totalAvaliacoes?: number;
+  dataCadastro?: string;
 }
 
 export interface ProdutoRequest {
@@ -17,6 +22,8 @@ export interface ProdutoRequest {
   estoque: number;
   idCategoria: number;
   idVendedor?: number;
+  /** Obrigatória no back-end ao criar um produto (URL http/https). */
+  imagemUrl?: string;
 }
 
 export interface ProdutoFiltros {
@@ -25,4 +32,5 @@ export interface ProdutoFiltros {
   precoMin?: number;
   precoMax?: number;
   page?: number;
+  size?: number;
 }
