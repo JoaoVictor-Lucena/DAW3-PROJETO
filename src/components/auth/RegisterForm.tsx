@@ -61,14 +61,16 @@ const FIELDS = ["nome", "email", "senha", "telefone", "razaoSocial", "cnpjCpf"] 
 export interface RegisterFormProps {
   onRegistered?: () => void;
   onSuccess?: (user: AuthUser) => void;
+  /** Esconde a opção "Vendedor" (ex.: modal de login sob demanda, que é só para compras). */
+  apenasCliente?: boolean;
 }
 
-export function RegisterForm({ onRegistered, onSuccess }: RegisterFormProps) {
+export function RegisterForm({ onRegistered, onSuccess, apenasCliente }: RegisterFormProps) {
   const [tipo, setTipo] = React.useState<Tipo>("CLIENTE");
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-2">
+      <div className={apenasCliente ? "hidden" : "grid grid-cols-2 gap-2"}>
         {(["CLIENTE", "VENDEDOR"] as const).map((t) => (
           <Button
             key={t}

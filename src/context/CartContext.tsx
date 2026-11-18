@@ -62,7 +62,7 @@ const fromApi = (c: Carrinho): CartItem[] =>
   }));
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, ready } = useAuth();
   const email = user?.email ?? null;
   const [local, setLocal] = React.useState<CartItem[]>(load);
   const [remote, setRemote] = React.useState<{ email: string; carrinho: Carrinho | null; erro?: string } | null>(null);
@@ -164,7 +164,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const doUsuario = email && remote?.email === email ? remote : null;
     const carrinho = doUsuario?.carrinho ?? null;
     return {
-      items: email ? (carrinho ? fromApi(carrinho) : []) : local,
+      // Até ler a sessão no navegador, o carrinho fica vazio: igual ao HTML do servidor (sem hydration mismatch).
+      items: !ready ? [] : email ? (carrinho ? fromApi(carrinho) : []) : local,
       carrinho,
       carregando: !!email && doUsuario === null,
       erro: doUsuario?.erro ?? null,
@@ -173,7 +174,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem,
       clearCart,
     };
-  }, [email, remote, local, recarregar, addItem, removeItem, clearCart]);
+  }, [ready, email, remote, local, recarregar, addItem, removeItem, clearCart]);
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 

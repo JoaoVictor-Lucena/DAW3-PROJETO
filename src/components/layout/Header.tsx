@@ -19,7 +19,7 @@ import { useCart } from "@/context/CartContext";
 import { loginComRedirect, painelDoPerfil } from "@/lib/auth-routes";
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, ready } = useAuth();
   const { items } = useCart();
   const pathname = usePathname();
 
@@ -42,53 +42,60 @@ export function Header() {
         </nav>
 
         <div className="flex flex-wrap items-center gap-2">
-          {(!user || user.role === "CLIENTE") && (
-            <Link
-              href="/carrinho"
-              className={buttonVariants({ variant: "outline", size: "sm" })}
-              aria-label={`Carrinho com ${cartCount} itens`}
-            >
-              <ShoppingCart className="size-4" />
-              <span className="hidden sm:inline">Carrinho</span>
-              {cartCount > 0 && (
-                <Badge variant="default" className="ml-1 h-5 min-w-5 px-1.5 text-xs">
-                  {cartCount}
-                </Badge>
-              )}
-            </Link>
-          )}
-
-          {user && (
-            <>
-              <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
-                {user.nome ?? user.email}
-              </span>
-              <Badge variant="secondary">{user.role}</Badge>
-              <Link
-                href={painelDoPerfil(user.role)}
-                className={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <LayoutDashboardIcon className="size-4" />
-                <span className="hidden sm:inline">
-                  {user.role === "CLIENTE" ? "Minha conta" : "Meu painel"}
-                </span>
-              </Link>
-            </>
-          )}
-
-          {user && <SinoNotificacoes />}
-          <ThemeToggle />
-
-          {user ? (
-            <Button variant="outline" size="sm" onClick={logout}>
-              <LogOutIcon className="size-4" />
-              Sair
-            </Button>
+          {/* Até ler a sessão, não mostra nem "Entrar" nem o menu do usuário (evita piscar). */}
+          {!ready ? (
+            <div className="h-8 w-40" aria-hidden />
           ) : (
-            <Link href={loginComRedirect(pathname)} className={buttonVariants({ size: "sm" })}>
-              <LogInIcon className="size-4" />
-              Entrar
-            </Link>
+            <>
+              {(!user || user.role === "CLIENTE") && (
+                <Link
+                  href="/carrinho"
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  aria-label={`Carrinho com ${cartCount} itens`}
+                >
+                  <ShoppingCart className="size-4" />
+                  <span className="hidden sm:inline">Carrinho</span>
+                  {cartCount > 0 && (
+                    <Badge variant="default" className="ml-1 h-5 min-w-5 px-1.5 text-xs">
+                      {cartCount}
+                    </Badge>
+                  )}
+                </Link>
+              )}
+
+              {user && (
+                <>
+                  <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
+                    {user.nome ?? user.email}
+                  </span>
+                  <Badge variant="secondary">{user.role}</Badge>
+                  <Link
+                    href={painelDoPerfil(user.role)}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    <LayoutDashboardIcon className="size-4" />
+                    <span className="hidden sm:inline">
+                      {user.role === "CLIENTE" ? "Minha conta" : "Meu painel"}
+                    </span>
+                  </Link>
+                </>
+              )}
+
+              {user && <SinoNotificacoes />}
+              <ThemeToggle />
+
+              {user ? (
+                <Button variant="outline" size="sm" onClick={logout}>
+                  <LogOutIcon className="size-4" />
+                  Sair
+                </Button>
+              ) : (
+                <Link href={loginComRedirect(pathname)} className={buttonVariants({ size: "sm" })}>
+                  <LogInIcon className="size-4" />
+                  Entrar
+                </Link>
+              )}
+            </>
           )}
         </div>
       </div>
