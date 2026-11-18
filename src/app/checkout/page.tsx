@@ -10,8 +10,8 @@ import { PassoRevisao } from "@/components/checkout/PassoRevisao";
 import { Stepper } from "@/components/checkout/Stepper";
 import { Header } from "@/components/layout/Header";
 import { RoleGuard } from "@/components/layout/RoleGuard";
-import { CartProvider, useCart } from "@/context/CartContext";
-import { getErrorMessage } from "@/services/api";
+import { useCart } from "@/context/CartContext";
+import { ApiError, getErrorMessage } from "@/services/api";
 import { checkoutService } from "@/services/checkoutService";
 import type { Cupom, Endereco, MetodoPagamento } from "@/types";
 
@@ -24,6 +24,7 @@ function CheckoutConteudo() {
   const [endereco, setEndereco] = React.useState<Endereco | null>(null);
   const [metodo, setMetodo] = React.useState<MetodoPagamento | null>(null);
   const [cupom, setCupom] = React.useState<Cupom | null>(null);
+  const [erroCupom, setErroCupom] = React.useState<{ codigo: string; mensagem: string } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   // Trava síncrona: o estado só atualiza no próximo render, então um duplo clique rápido passaria.
   const enviando = React.useRef(false);
@@ -39,9 +40,16 @@ function CheckoutConteudo() {
         codigoCupom: cupom?.codigo,
       });
       clearCart();
-      router.push(`/checkout/sucesso?pedido=${compra.id}&metodo=${metodo}`);
+      router.push(`/checkout/sucesso?pedido=${encodeURIComponent(compra.codigo)}`);
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      // O back-end responde 422 tanto para cupom quanto para estoque/carrinho; só o texto diferencia.
+      if (cupom && e instanceof ApiError && e.status === 422 && /cupom/i.test(e.message)) {
+        setErroCupom({ codigo: cupom.codigo, mensagem: e.message });
+        setCupom(null);
+        setPasso(1);
+      } else {
+        toast.error(getErrorMessage(e));
+      }
       enviando.current = false;
       setIsLoading(false);
     }
@@ -66,8 +74,13 @@ function CheckoutConteudo() {
           onMetodo={setMetodo}
           cupom={cupom}
           onCupom={setCupom}
+          codigoInicial={erroCupom?.codigo}
+          erroInicial={erroCupom?.mensagem}
           onVoltar={() => setPasso(0)}
-          onAvancar={() => setPasso(2)}
+          onAvancar={() => {
+            setErroCupom(null);
+            setPasso(2);
+          }}
         />
       )}
 
@@ -89,9 +102,7 @@ export default function CheckoutPage() {
   return (
     <RoleGuard allow={["CLIENTE"]}>
       <Header />
-      <CartProvider>
-        <CheckoutConteudo />
-      </CartProvider>
+      <CheckoutConteudo />
     </RoleGuard>
   );
 }

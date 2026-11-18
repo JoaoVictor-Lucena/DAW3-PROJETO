@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
 
 import { METODOS } from "@/components/checkout/PassoPagamento";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
 import type { Cupom, Endereco, MetodoPagamento } from "@/types";
@@ -67,7 +68,12 @@ export function PassoRevisao({
             </Button>
           </div>
         ) : itens.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Seu carrinho está vazio.</p>
+          <div className="space-y-3 rounded-lg border border-dashed p-4 text-center">
+            <p className="text-sm text-muted-foreground">Seu carrinho está vazio.</p>
+            <Link href="/carrinho" className={buttonVariants({ variant: "outline" })}>
+              Voltar ao carrinho
+            </Link>
+          </div>
         ) : (
           <ul className="divide-y rounded-lg border">
             {itens.map((i) => (

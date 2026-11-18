@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/services/api";
 import { carrinhoService } from "@/services/carrinhoService";
 import type { Carrinho } from "@/types";
@@ -17,13 +18,20 @@ interface CartContextValue {
 
 const CartContext = React.createContext<CartContextValue | null>(null);
 
+/** Carrinho do cliente logado. Só busca no back-end para o perfil CLIENTE. */
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const chave = user?.role === "CLIENTE" ? (user.email ?? "cliente") : null;
+
   const [carrinho, setCarrinho] = React.useState<Carrinho | null>(null);
-  const [carregando, setCarregando] = React.useState(true);
   const [erro, setErro] = React.useState<string | null>(null);
+  // Para qual usuário/tentativa o carrinho já foi carregado (evita setState síncrono no effect).
+  const [carregadoPara, setCarregadoPara] = React.useState<string | null>(null);
   const [tentativa, setTentativa] = React.useState(0);
+  const chaveAtual = chave === null ? null : `${chave}#${tentativa}`;
 
   React.useEffect(() => {
+    if (chaveAtual === null) return;
     let ativo = true;
     carrinhoService
       .meu()
@@ -33,22 +41,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setErro(null);
       })
       .catch((e) => ativo && setErro(getErrorMessage(e)))
-      .finally(() => ativo && setCarregando(false));
+      .finally(() => ativo && setCarregadoPara(chaveAtual));
     return () => {
       ativo = false;
     };
-  }, [tentativa]);
+  }, [chaveAtual]);
 
-  const recarregar = React.useCallback(() => {
-    setCarregando(true);
-    setTentativa((t) => t + 1);
-  }, []);
-
+  const recarregar = React.useCallback(() => setTentativa((t) => t + 1), []);
   const clearCart = React.useCallback(() => setCarrinho(null), []);
 
-  const value = React.useMemo(
-    () => ({ carrinho, carregando, erro, recarregar, clearCart }),
-    [carrinho, carregando, erro, recarregar, clearCart],
+  const value = React.useMemo<CartContextValue>(
+    () => ({
+      carrinho: chave === null ? null : carrinho,
+      carregando: chaveAtual !== null && carregadoPara !== chaveAtual,
+      erro: chave === null ? null : erro,
+      recarregar,
+      clearCart,
+    }),
+    [chave, chaveAtual, carrinho, carregadoPara, erro, recarregar, clearCart],
   );
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

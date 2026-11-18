@@ -24,6 +24,8 @@ export function PassoPagamento({
   onMetodo,
   cupom,
   onCupom,
+  codigoInicial,
+  erroInicial,
   onVoltar,
   onAvancar,
 }: {
@@ -31,11 +33,15 @@ export function PassoPagamento({
   onMetodo: (m: MetodoPagamento) => void;
   cupom: Cupom | null;
   onCupom: (c: Cupom | null) => void;
+  /** Preenche o campo (ex.: cupom recusado na finalização). */
+  codigoInicial?: string;
+  /** Erro exibido no campo do cupom ao abrir o passo. */
+  erroInicial?: string;
   onVoltar: () => void;
   onAvancar: () => void;
 }) {
-  const [codigo, setCodigo] = React.useState(cupom?.codigo ?? "");
-  const [erro, setErro] = React.useState<string | null>(null);
+  const [codigo, setCodigo] = React.useState(cupom?.codigo ?? codigoInicial ?? "");
+  const [erro, setErro] = React.useState<string | null>(erroInicial ?? null);
   const [validando, setValidando] = React.useState(false);
 
   async function aplicar() {
