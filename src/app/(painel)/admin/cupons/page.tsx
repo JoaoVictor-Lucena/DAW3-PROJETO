@@ -25,7 +25,7 @@ import { useCarregar } from "@/hooks/useCarregar";
 import { formatDate } from "@/lib/admin-labels";
 import { formatBRL } from "@/lib/format";
 import { adminService } from "@/services/adminService";
-import type { Cupom, StatusCupom } from "@/types";
+import type { CupomAdmin, StatusCupom } from "@/types";
 
 const OPCOES_STATUS = [
   { value: "", label: "Todos os status" },
@@ -33,7 +33,7 @@ const OPCOES_STATUS = [
   { value: "INATIVO", label: "Inativos" },
 ];
 
-function expirado(c: Cupom) {
+function expirado(c: CupomAdmin) {
   if (!c.dataExpiracao) return false;
   const hoje = new Date();
   const hojeISO = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -45,7 +45,7 @@ export default function AdminCuponsPage() {
   const [codigo, setCodigo] = React.useState("");
   const [status, setStatus] = React.useState("");
   const [page, setPage] = React.useState(0);
-  const [form, setForm] = React.useState<{ cupom: Cupom | null } | null>(null);
+  const [form, setForm] = React.useState<{ cupom: CupomAdmin | null } | null>(null);
   const [confirmacao, setConfirmacao] = React.useState<PedidoConfirmacao | null>(null);
 
   const filtros = { codigo, status: (status || undefined) as StatusCupom | undefined, page };
@@ -53,7 +53,7 @@ export default function AdminCuponsPage() {
     adminService.cupons(filtros),
   );
 
-  function pedirExclusao(c: Cupom) {
+  function pedirExclusao(c: CupomAdmin) {
     setConfirmacao({
       titulo: `Excluir o cupom ${c.codigo}?`,
       descricao: "Esta ação não pode ser desfeita. Para só impedir novos usos, deixe o cupom inativo.",
