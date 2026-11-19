@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# docker compose com as credenciais do ambiente: fica só na máquina de quem roda, nunca no repositório
+docker-compose*.yml
+compose*.yml
+Docker-compose*.yml
