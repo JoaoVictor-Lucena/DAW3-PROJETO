@@ -64,13 +64,15 @@ const fromApi = (c: Carrinho): CartItem[] =>
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user, ready } = useAuth();
   const email = user?.email ?? null;
+  // Carrinho no back-end é exclusivo de CLIENTE; VENDEDOR/ADMIN não chamam a API (evita 403).
+  const ehCliente = user?.role === "CLIENTE";
   const [local, setLocal] = React.useState<CartItem[]>(load);
   const [remote, setRemote] = React.useState<{ email: string; carrinho: Carrinho | null; erro?: string } | null>(null);
 
   const mergedFor = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    if (!email) {
+    if (!email || !ehCliente) {
       mergedFor.current = null;
       return;
     }
@@ -97,7 +99,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         toast.error(getErrorMessage(error));
       }
     })();
-  }, [email]);
+  }, [email, ehCliente]);
 
   const refresh = React.useCallback(async (owner: string) => {
     setRemote({ email: owner, carrinho: await cartService.getCart() });
@@ -157,24 +159,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [email]);
 
   const recarregar = React.useCallback(() => {
-    if (email) void refresh(email).catch((error) => toast.error(getErrorMessage(error)));
-  }, [email, refresh]);
+    if (email && ehCliente) void refresh(email).catch((error) => toast.error(getErrorMessage(error)));
+  }, [email, ehCliente, refresh]);
 
   const value = React.useMemo<CartContextValue>(() => {
-    const doUsuario = email && remote?.email === email ? remote : null;
+    const doUsuario = email && ehCliente && remote?.email === email ? remote : null;
     const carrinho = doUsuario?.carrinho ?? null;
     return {
       // Até ler a sessão no navegador, o carrinho fica vazio: igual ao HTML do servidor (sem hydration mismatch).
-      items: !ready ? [] : email ? (carrinho ? fromApi(carrinho) : []) : local,
+      items: !ready ? [] : email ? (ehCliente && carrinho ? fromApi(carrinho) : []) : local,
       carrinho,
-      carregando: !!email && doUsuario === null,
+      carregando: !!email && ehCliente && doUsuario === null,
       erro: doUsuario?.erro ?? null,
       recarregar,
       addItem,
       removeItem,
       clearCart,
     };
-  }, [ready, email, remote, local, recarregar, addItem, removeItem, clearCart]);
+  }, [ready, email, ehCliente, remote, local, recarregar, addItem, removeItem, clearCart]);
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 

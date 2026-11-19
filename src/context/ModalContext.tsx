@@ -18,6 +18,7 @@ type LoginSuccessHandler = (user: AuthUser) => void;
 
 interface ModalContextValue {
   openLoginModal: (onSuccess?: LoginSuccessHandler) => void;
+  openRegisterModal: (onSuccess?: LoginSuccessHandler) => void;
 }
 
 type Mode = "login" | "register";
@@ -35,6 +36,12 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     setOpen(true);
   }, []);
 
+  const openRegisterModal = React.useCallback((handler?: LoginSuccessHandler) => {
+    onSuccess.current = handler;
+    setMode("register");
+    setOpen(true);
+  }, []);
+
   const handleOpenChange = React.useCallback((next: boolean) => {
     setOpen(next);
     if (!next) onSuccess.current = undefined;
@@ -47,7 +54,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     handler?.(user);
   }, []);
 
-  const value = React.useMemo(() => ({ openLoginModal }), [openLoginModal]);
+  const value = React.useMemo(() => ({ openLoginModal, openRegisterModal }), [openLoginModal, openRegisterModal]);
 
   return (
     <ModalContext.Provider value={value}>
