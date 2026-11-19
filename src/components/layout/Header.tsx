@@ -1,99 +1,95 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  LayoutDashboardIcon,
-  LogInIcon,
-  LogOutIcon,
-  ShoppingCart,
-  StoreIcon,
-} from "lucide-react";
+import { HeartIcon, ShoppingCart, StoreIcon } from "lucide-react";
 
+import { BuscaProdutos } from "@/components/layout/BuscaProdutos";
+import { MenuCategorias } from "@/components/layout/MenuCategorias";
+import { MenuMobile } from "@/components/layout/MenuMobile";
+import { MenuUsuario } from "@/components/layout/MenuUsuario";
 import { SinoNotificacoes } from "@/components/layout/SinoNotificacoes";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { loginComRedirect, painelDoPerfil } from "@/lib/auth-routes";
+import { useFavoritos } from "@/context/FavoritosContext";
+import { useModal } from "@/context/ModalContext";
+
+function ContadorBadge({ valor }: { valor: number }) {
+  if (valor <= 0) return null;
+  return (
+    <Badge className="absolute -top-1.5 -right-1.5 h-4 min-w-4 justify-center px-1 text-[10px]">
+      {valor > 99 ? "99+" : valor}
+    </Badge>
+  );
+}
 
 export function Header() {
-  const { user, logout, ready } = useAuth();
+  const { user, ready } = useAuth();
   const { items } = useCart();
-  const pathname = usePathname();
+  const { disponivel: favoritosDisponivel, quantidade: qtdFavoritos } = useFavoritos();
+  const { openLoginModal } = useModal();
 
   const cartCount = items.reduce((acc, item) => acc + item.quantidade, 0);
+  const ehCliente = !user || user.role === "CLIENTE";
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
-        <nav className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <StoreIcon className="size-5" />
-            Marketplace
-          </Link>
-          <Link
-            href="/produtos"
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            Produtos
-          </Link>
-        </nav>
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
+        <MenuMobile />
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Até ler a sessão, não mostra nem "Entrar" nem o menu do usuário (evita piscar). */}
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          <StoreIcon className="size-5" />
+          <span className="hidden sm:inline">Marketplace</span>
+        </Link>
+
+        {/* Menu de Categorias (Desktop) */}
+        <div className="hidden md:flex items-center">
+          <MenuCategorias />
+        </div>
+
+        {/* Busca: só no desktop (no mobile fica dentro do Sheet). */}
+        <BuscaProdutos className="mx-auto hidden max-w-xl flex-1 md:flex" />
+
+        <div className="ml-auto flex items-center gap-1 sm:gap-1.5 md:ml-0">
+          {/* Até ler a sessão, não mostra nada (evita piscar). */}
           {!ready ? (
-            <div className="h-8 w-40" aria-hidden />
+            <div className="h-8 w-24 sm:w-40" aria-hidden />
           ) : (
             <>
-              {(!user || user.role === "CLIENTE") && (
+              {favoritosDisponivel && (
                 <Link
-                  href="/carrinho"
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                  aria-label={`Carrinho com ${cartCount} itens`}
+                  href="/conta/favoritos"
+                  className={`${buttonVariants({ variant: "ghost", size: "icon" })} relative`}
+                  aria-label={`Favoritos (${qtdFavoritos})`}
                 >
-                  <ShoppingCart className="size-4" />
-                  <span className="hidden sm:inline">Carrinho</span>
-                  {cartCount > 0 && (
-                    <Badge variant="default" className="ml-1 h-5 min-w-5 px-1.5 text-xs">
-                      {cartCount}
-                    </Badge>
-                  )}
+                  <HeartIcon className="size-4" />
+                  <ContadorBadge valor={qtdFavoritos} />
                 </Link>
-              )}
-
-              {user && (
-                <>
-                  <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:inline">
-                    {user.nome ?? user.email}
-                  </span>
-                  <Badge variant="secondary">{user.role}</Badge>
-                  <Link
-                    href={painelDoPerfil(user.role)}
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                  >
-                    <LayoutDashboardIcon className="size-4" />
-                    <span className="hidden sm:inline">
-                      {user.role === "CLIENTE" ? "Minha conta" : "Meu painel"}
-                    </span>
-                  </Link>
-                </>
               )}
 
               {user && <SinoNotificacoes />}
+
+              {ehCliente && (
+                <Link
+                  href="/carrinho"
+                  className={`${buttonVariants({ variant: "ghost", size: "icon" })} relative`}
+                  aria-label={`Carrinho com ${cartCount} itens`}
+                >
+                  <ShoppingCart className="size-4" />
+                  <ContadorBadge valor={cartCount} />
+                </Link>
+              )}
+
               <ThemeToggle />
 
               {user ? (
-                <Button variant="outline" size="sm" onClick={logout}>
-                  <LogOutIcon className="size-4" />
-                  Sair
-                </Button>
+                <MenuUsuario />
               ) : (
-                <Link href={loginComRedirect(pathname)} className={buttonVariants({ size: "sm" })}>
-                  <LogInIcon className="size-4" />
+                <Button size="sm" onClick={() => openLoginModal()}>
                   Entrar
-                </Link>
+                </Button>
               )}
             </>
           )}
