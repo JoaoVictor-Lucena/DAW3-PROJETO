@@ -63,7 +63,8 @@ const fromApi = (c: Carrinho): CartItem[] =>
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user, ready } = useAuth();
-  const email = user?.email ?? null;
+  // Só o CLIENTE tem carrinho no back-end; para vendedor e admin o GET /carrinhos/meu dá 403.
+  const email = user?.role === "CLIENTE" ? user.email : null;
   const [local, setLocal] = React.useState<CartItem[]>(load);
   const [remote, setRemote] = React.useState<{ email: string; carrinho: Carrinho | null; erro?: string } | null>(null);
 

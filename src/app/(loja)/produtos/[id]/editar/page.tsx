@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { RoleGuard } from "@/components/layout/RoleGuard";
 import { ProductForm } from "@/components/produtos/ProductForm";
+import { useAuth } from "@/context/AuthContext";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getErrorMessage } from "@/services/api";
@@ -17,6 +18,9 @@ type Result = { id: string; produto?: Produto; error?: string };
 
 export default function EditarProdutoPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  // O vendedor volta para o próprio painel; o admin, para o catálogo.
+  const destino = user?.role === "VENDEDOR" ? "/vendedor/produtos" : "/produtos";
   const { id } = useParams<{ id: string }>();
   const [result, setResult] = React.useState<Result | null>(null);
 
@@ -41,7 +45,7 @@ export default function EditarProdutoPage() {
   async function handleSubmit(dto: ProdutoRequest) {
     const atualizado = await produtoService.atualizar(Number(id), dto);
     toast.success(`Produto "${atualizado.nome}" atualizado com sucesso.`);
-    router.push("/produtos");
+    router.push(destino);
   }
 
   return (
@@ -63,12 +67,13 @@ export default function EditarProdutoPage() {
           <ProductForm
             produto={result.produto}
             submitLabel="Salvar alterações"
+            voltarHref={destino}
             onSubmit={handleSubmit}
           />
         ) : (
           <div className="space-y-3 rounded-lg border border-dashed p-10 text-center">
             <p className="text-muted-foreground">{result?.error}</p>
-            <Link href="/produtos" className={buttonVariants({ variant: "outline" })}>
+            <Link href={destino} className={buttonVariants({ variant: "outline" })}>
               Voltar para produtos
             </Link>
           </div>
