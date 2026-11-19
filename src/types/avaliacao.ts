@@ -15,3 +15,9 @@ export interface AvaliacaoRequest {
   idProduto: number;
   idCliente?: number;
 }
+
+/** Se o cliente logado pode avaliar o produto; quando não pode, `motivo` explica por quê. */
+export interface PodeAvaliar {
+  podeAvaliar: boolean;
+  motivo: string | null;
+}

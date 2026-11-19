@@ -93,7 +93,11 @@ function Conteudo() {
         </div>
       )}
 
-      <Link href="/meus-pedidos" className={cn(buttonVariants())}>
+      <Link
+        // Uma compra gera um pedido por loja: com um só, já abre o rastreio dele.
+        href={compra?.pedidos?.length === 1 ? `/conta/pedidos/${compra.pedidos[0].id}` : "/conta/pedidos"}
+        className={cn(buttonVariants())}
+      >
         Meus pedidos
       </Link>
     </main>
