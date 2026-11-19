@@ -19,7 +19,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAtualizarAoFocar } from "@/hooks/useAtualizarAoFocar";
 import { useCarregar } from "@/hooks/useCarregar";
 import { pedidoService } from "@/services/pedidoService";
-import type { Devolucao, EtapaPedido, Pedido } from "@/types";
+import type { EtapaPedido, Pedido } from "@/types";
 
 /** Etapas em que o pedido já terminou (não está mais "em andamento"). */
 const FINALIZADAS: readonly EtapaPedido[] = [
@@ -51,18 +51,13 @@ function Indicador({ rotulo, valor }: { rotulo: string; valor: number | undefine
 export default function ContaPage() {
   const { user } = useAuth();
   // A primeira página já traz os pedidos mais recentes; os em andamento estão sempre entre eles.
-  const { dados, erro, carregando, recarregar } = useCarregar("recentes", async () => {
-    const [pagina, devolucoes] = await Promise.all([
-      pedidoService.meus({ page: 0 }),
-      pedidoService.devolucoesPorPedido().catch((): Record<number, Devolucao> => ({})),
-    ]);
-    return { pagina, devolucoes };
-  });
+  const { dados, erro, carregando, recarregar } = useCarregar("recentes", () =>
+    pedidoService.meus({ page: 0 }),
+  );
   useAtualizarAoFocar(recarregar);
 
-  const pedidos = dados?.pagina.content ?? [];
-  const devolucoes = dados?.devolucoes ?? {};
-  const etapa = (p: Pedido) => etapaDoPedido(p, devolucoes[p.id]);
+  const pedidos = dados?.content ?? [];
+  const etapa = (p: Pedido) => etapaDoPedido(p);
   const emAndamento = pedidos.filter((p) => !FINALIZADAS.includes(etapa(p)));
   const entregues = pedidos.filter((p) => etapa(p) === "ENTREGUE");
   const recentes = pedidos.slice(0, 5);
@@ -76,7 +71,7 @@ export default function ContaPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Indicador rotulo="Pedidos realizados" valor={dados?.pagina.totalElements} />
+        <Indicador rotulo="Pedidos realizados" valor={dados?.totalElements} />
         <Indicador rotulo="Em andamento" valor={dados && emAndamento.length} />
         <Indicador rotulo="Entregues recentemente" valor={dados && entregues.length} />
       </div>
@@ -88,7 +83,7 @@ export default function ContaPage() {
           </h2>
           <div className="space-y-2">
             {emAndamento.map((p) => (
-              <PedidoResumo key={p.id} pedido={p} devolucao={devolucoes[p.id]} />
+              <PedidoResumo key={p.id} pedido={p} />
             ))}
           </div>
         </section>
@@ -112,7 +107,7 @@ export default function ContaPage() {
         >
           <div className="space-y-2">
             {recentes.map((p) => (
-              <PedidoResumo key={p.id} pedido={p} devolucao={devolucoes[p.id]} />
+              <PedidoResumo key={p.id} pedido={p} />
             ))}
           </div>
         </EstadoLista>

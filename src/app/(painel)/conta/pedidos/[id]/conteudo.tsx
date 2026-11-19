@@ -33,7 +33,7 @@ import { formatDate } from "@/lib/admin-labels";
 import { formatBRL, formatDateTime } from "@/lib/format";
 import { avaliacaoService } from "@/services/avaliacaoService";
 import { pedidoService } from "@/services/pedidoService";
-import type { Devolucao, EtapaPedido, Pedido, PodeAvaliar } from "@/types";
+import { devolucaoDoPedido, type DevolucaoDoPedido, type EtapaPedido, type Pedido, type PodeAvaliar } from "@/types";
 
 const STATUS_PAGAMENTO: Record<string, string> = {
   APROVADO: "Aprovado",
@@ -60,7 +60,7 @@ function foiEntregue(p: Pedido) {
 }
 
 /** O back-end aceita uma nova devolução só se não houver outra pendente ou aprovada. */
-function podeDevolver(p: Pedido, devolucao: Devolucao | null) {
+function podeDevolver(p: Pedido, devolucao: DevolucaoDoPedido | null) {
   return foiEntregue(p) && p.status !== "DEVOLVIDO" && (!devolucao || devolucao.status === "RECUSADA");
 }
 
@@ -71,15 +71,11 @@ export default function DetalhePedidoPage() {
   const idPedido = Number(id);
 
   const { dados, erro, carregando, recarregar } = useCarregar(`pedido-${idPedido}`, async () => {
-    const [pedido, historico, devolucao] = await Promise.all([
+    const [pedido, historico] = await Promise.all([
       pedidoService.buscar(idPedido),
       pedidoService.historico(idPedido),
-      pedidoService
-        .devolucoesPorPedido()
-        .then((porPedido) => porPedido[idPedido] ?? null)
-        .catch(() => null),
     ]);
-    return { pedido, historico, devolucao };
+    return { pedido, historico };
   });
   useAtualizarAoFocar(recarregar);
 
@@ -149,8 +145,8 @@ export default function DetalhePedidoPage() {
     );
   }
 
-  const devolucao = dados.devolucao;
-  const etapa = etapaDoPedido(pedido, devolucao);
+  const devolucao = devolucaoDoPedido(pedido);
+  const etapa = etapaDoPedido(pedido);
   const aviso = AVISOS[etapa];
   // Cancelado ou pagamento recusado: o pedido nem chegou a ser enviado, então não há progresso a mostrar.
   const foraDoFluxo = etapa === "CANCELADO" || etapa === "PAGAMENTO_RECUSADO";
@@ -167,7 +163,7 @@ export default function DetalhePedidoPage() {
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold">Pedido #{pedido.id}</h1>
-            <EtapaBadge pedido={pedido} devolucao={devolucao} />
+            <EtapaBadge pedido={pedido} />
           </div>
           <p className="text-sm text-muted-foreground">
             Feito em {formatDateTime(pedido.dataPedido)}

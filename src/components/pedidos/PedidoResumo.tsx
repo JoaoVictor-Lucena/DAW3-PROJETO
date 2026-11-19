@@ -4,7 +4,7 @@ import { ChevronRightIcon } from "lucide-react";
 import { EtapaBadge } from "@/components/pedidos/EtapaBadge";
 import { MiniaturaProduto } from "@/components/pedidos/MiniaturaProduto";
 import { formatBRL, formatDateTime } from "@/lib/format";
-import type { Devolucao, Pedido } from "@/types";
+import type { Pedido } from "@/types";
 
 /**
  * Linha de um pedido nas listas: itens, total e etapa atual. O cliente vê a loja; o vendedor
@@ -12,13 +12,11 @@ import type { Devolucao, Pedido } from "@/types";
  */
 export function PedidoResumo({
   pedido,
-  devolucao,
   href = `/conta/pedidos/${pedido.id}`,
   mostrarCliente = false,
   extra,
 }: {
   pedido: Pedido;
-  devolucao?: Devolucao;
   href?: string;
   mostrarCliente?: boolean;
   /** Conteúdo ao lado do badge da etapa (ex.: "Sua vez" no painel do vendedor). */
@@ -41,7 +39,7 @@ export function PedidoResumo({
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium">Pedido #{pedido.id}</span>
-          <EtapaBadge pedido={pedido} devolucao={devolucao} />
+          <EtapaBadge pedido={pedido} />
           {extra}
         </div>
         <p className="truncate text-sm text-muted-foreground">{resumoItens}</p>

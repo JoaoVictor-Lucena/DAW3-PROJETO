@@ -10,7 +10,7 @@ import { PedidoResumo } from "@/components/pedidos/PedidoResumo";
 import { useAtualizarAoFocar } from "@/hooks/useAtualizarAoFocar";
 import { useCarregar } from "@/hooks/useCarregar";
 import { pedidoService } from "@/services/pedidoService";
-import type { Devolucao, StatusPedido } from "@/types";
+import type { StatusPedido } from "@/types";
 
 const OPCOES_STATUS = [
   { value: "", label: "Todos os pedidos" },
@@ -25,17 +25,12 @@ export default function MeusPedidosPage() {
   const [page, setPage] = React.useState(0);
 
   const filtros = { status: (status || undefined) as StatusPedido | undefined, page };
-  const { dados, erro, carregando, recarregar } = useCarregar(JSON.stringify(filtros), async () => {
-    const [pagina, devolucoes] = await Promise.all([
-      pedidoService.meus(filtros),
-      pedidoService.devolucoesPorPedido().catch((): Record<number, Devolucao> => ({})),
-    ]);
-    return { pagina, devolucoes };
-  });
+  const { dados, erro, carregando, recarregar } = useCarregar(JSON.stringify(filtros), () =>
+    pedidoService.meus(filtros),
+  );
   useAtualizarAoFocar(recarregar);
 
-  const pedidos = dados?.pagina.content ?? [];
-  const devolucoes = dados?.devolucoes ?? {};
+  const pedidos = dados?.content ?? [];
 
   return (
     <>
@@ -64,12 +59,12 @@ export default function MeusPedidosPage() {
       >
         <div className="space-y-2">
           {pedidos.map((p) => (
-            <PedidoResumo key={p.id} pedido={p} devolucao={devolucoes[p.id]} />
+            <PedidoResumo key={p.id} pedido={p} />
           ))}
         </div>
       </EstadoLista>
 
-      <Paginacao page={dados?.pagina} disabled={carregando} onChange={setPage} />
+      <Paginacao page={dados} disabled={carregando} onChange={setPage} />
     </>
   );
 }

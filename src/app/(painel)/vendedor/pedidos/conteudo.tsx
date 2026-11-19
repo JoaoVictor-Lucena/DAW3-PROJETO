@@ -12,7 +12,7 @@ import { aguardaVendedor } from "@/components/vendedor/acoesPedido";
 import { useAtualizarAoFocar } from "@/hooks/useAtualizarAoFocar";
 import { useCarregar } from "@/hooks/useCarregar";
 import { painelVendedorService } from "@/services/painelVendedorService";
-import type { Devolucao, StatusPedido } from "@/types";
+import { devolucaoDoPedido, type StatusPedido } from "@/types";
 
 const OPCOES_STATUS = [
   { value: "", label: "Todos os pedidos" },
@@ -27,17 +27,12 @@ export default function VendedorPedidosPage() {
   const [page, setPage] = React.useState(0);
 
   const filtros = { status: (status || undefined) as StatusPedido | undefined, page };
-  const { dados, erro, carregando, recarregar } = useCarregar(JSON.stringify(filtros), async () => {
-    const [pagina, devolucoes] = await Promise.all([
-      painelVendedorService.pedidos(filtros),
-      painelVendedorService.devolucoesPorPedido().catch((): Record<number, Devolucao> => ({})),
-    ]);
-    return { pagina, devolucoes };
-  });
+  const { dados, erro, carregando, recarregar } = useCarregar(JSON.stringify(filtros), () =>
+    painelVendedorService.pedidos(filtros),
+  );
   useAtualizarAoFocar(recarregar);
 
-  const pedidos = dados?.pagina.content ?? [];
-  const devolucoes = dados?.devolucoes ?? {};
+  const pedidos = dados?.content ?? [];
 
   return (
     <>
@@ -66,13 +61,12 @@ export default function VendedorPedidosPage() {
       >
         <div className="space-y-2">
           {pedidos.map((p) => {
-            const devolucao = devolucoes[p.id];
+            const devolucao = devolucaoDoPedido(p);
             const suaVez = devolucao?.status === "PENDENTE" || (!devolucao && aguardaVendedor(p));
             return (
               <PedidoResumo
                 key={p.id}
                 pedido={p}
-                devolucao={devolucao}
                 href={`/vendedor/pedidos/${p.id}`}
                 mostrarCliente
                 extra={suaVez && <Badge>Sua vez</Badge>}
@@ -82,7 +76,7 @@ export default function VendedorPedidosPage() {
         </div>
       </EstadoLista>
 
-      <Paginacao page={dados?.pagina} disabled={carregando} onChange={setPage} />
+      <Paginacao page={dados} disabled={carregando} onChange={setPage} />
     </>
   );
 }

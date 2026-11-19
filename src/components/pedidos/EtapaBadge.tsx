@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { ETAPA_PEDIDO_LABEL, STATUS_PEDIDO_LABEL, rotulo } from "@/lib/admin-labels";
 import { cn } from "@/lib/utils";
-import type { Devolucao, EtapaPedido, Pedido, StatusDevolucao } from "@/types";
+import type { EtapaPedido, Pedido } from "@/types";
 
 const AZUL = "bg-sky-500/15 text-sky-700 dark:text-sky-300";
 const INDIGO = "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300";
@@ -35,35 +35,20 @@ const ETAPA_DO_STATUS: Record<Pedido["status"], EtapaPedido> = {
   DEVOLVIDO: "DEVOLVIDO",
 };
 
-const ETAPA_DA_DEVOLUCAO: Record<StatusDevolucao, EtapaPedido> = {
-  PENDENTE: "DEVOLUCAO_SOLICITADA",
-  RECUSADA: "DEVOLUCAO_RECUSADA",
-  APROVADA: "DEVOLVIDO",
-};
-
-/**
- * Etapa a mostrar para o cliente. Uma devolução em andamento tem prioridade, porque o
- * `etapaAtual` do back-end continua "ENTREGUE" depois que a devolução é solicitada.
- */
-export function etapaDoPedido(
-  pedido: Pick<Pedido, "status" | "etapaAtual">,
-  devolucao?: Pick<Devolucao, "status"> | null,
-): EtapaPedido {
-  if (devolucao && pedido.status !== "CANCELADO") return ETAPA_DA_DEVOLUCAO[devolucao.status];
+/** Etapa atual do pedido. O back-end já considera devolução e pagamento recusado. */
+export function etapaDoPedido(pedido: Pick<Pedido, "status" | "etapaAtual">): EtapaPedido {
   return pedido.etapaAtual ?? ETAPA_DO_STATUS[pedido.status];
 }
 
 /** Badge colorido com a etapa atual do pedido (ex.: "Em trânsito", "Entregue"). */
 export function EtapaBadge({
   pedido,
-  devolucao,
   className,
 }: {
   pedido: Pick<Pedido, "status" | "etapaAtual">;
-  devolucao?: Pick<Devolucao, "status"> | null;
   className?: string;
 }) {
-  const etapa = etapaDoPedido(pedido, devolucao);
+  const etapa = etapaDoPedido(pedido);
   return (
     <Badge
       variant="secondary"
