@@ -2,12 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { MiniaturaProduto } from "@/components/pedidos/MiniaturaProduto";
 import { CategoriaQuickDialog } from "@/components/produtos/CategoriaQuickDialog";
 import { buttonVariants, Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,9 @@ function toInt(raw: string): number {
   return Number(raw.trim().replace(",", "."));
 }
 
+/** O back-end aceita só URLs http(s) para a imagem do produto. */
+const URL_IMAGEM = /^https?:\/\/\S+$/i;
+
 function createSchema(isAdmin: boolean) {
   return z.object({
     nome: z
@@ -56,6 +60,12 @@ function createSchema(isAdmin: boolean) {
       .min(1, "Estoque é obrigatório")
       .refine((v) => Number.isInteger(toInt(v)), "O estoque deve ser um número inteiro")
       .refine((v) => toInt(v) >= 0, "O estoque deve ser maior ou igual a 0"),
+    imagemUrl: z
+      .string()
+      .trim()
+      .min(1, "Informe a URL da imagem")
+      .max(500, "Máximo de 500 caracteres")
+      .regex(URL_IMAGEM, "Informe uma URL que comece com http:// ou https://"),
     idCategoria: z.string().min(1, "Selecione uma categoria"),
     idVendedor: isAdmin ? z.string().min(1, "Selecione um vendedor") : z.string(),
   });
@@ -68,6 +78,7 @@ const FIELDS = [
   "descricao",
   "preco",
   "estoque",
+  "imagemUrl",
   "idCategoria",
   "idVendedor",
 ] as const;
@@ -75,10 +86,17 @@ const FIELDS = [
 interface Props {
   produto?: Produto;
   submitLabel?: string;
+  /** Para onde o botão "Cancelar" leva (padrão: catálogo). */
+  voltarHref?: string;
   onSubmit: (dto: ProdutoRequest) => Promise<void>;
 }
 
-export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props) {
+export function ProductForm({
+  produto,
+  submitLabel = "Salvar",
+  voltarHref = "/produtos",
+  onSubmit,
+}: Props) {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 
@@ -101,6 +119,7 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
       descricao: produto?.descricao ?? "",
       preco: produto ? numberToCurrencyInput(produto.preco) : "",
       estoque: produto ? String(produto.estoque) : "",
+      imagemUrl: produto?.imagemUrl ?? "",
       idCategoria: produto ? String(produto.idCategoria) : "",
       idVendedor: produto ? String(produto.idVendedor) : "",
     },
@@ -153,6 +172,7 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
       descricao: values.descricao.trim() || undefined,
       preco: parseCurrencyInput(values.preco),
       estoque: toInt(values.estoque),
+      imagemUrl: values.imagemUrl.trim(),
       idCategoria: Number(values.idCategoria),
       ...(isAdmin ? { idVendedor: Number(values.idVendedor) } : {}),
     };
@@ -167,6 +187,9 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
       if (!mapped) toast.error(getErrorMessage(error));
     }
   }
+
+  const imagemUrl = useWatch({ control, name: "imagemUrl" })?.trim() ?? "";
+  const previa = URL_IMAGEM.test(imagemUrl) ? imagemUrl : null;
 
   const fieldError = (name: keyof FormValues) =>
     errors[name] && <p className="text-sm text-destructive">{errors[name]?.message}</p>;
@@ -222,6 +245,27 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
             {...register("estoque")}
           />
           {fieldError("estoque")}
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="imagemUrl">URL da imagem</Label>
+        <div className="flex items-start gap-3">
+          <MiniaturaProduto src={previa} className="size-16" />
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <Input
+              id="imagemUrl"
+              type="url"
+              inputMode="url"
+              placeholder="https://..."
+              aria-invalid={!!errors.imagemUrl}
+              {...register("imagemUrl")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Cole o link de uma imagem pública (JPG, PNG ou WebP). A prévia aparece ao lado.
+            </p>
+            {fieldError("imagemUrl")}
+          </div>
         </div>
       </div>
 
@@ -285,7 +329,7 @@ export function ProductForm({ produto, submitLabel = "Salvar", onSubmit }: Props
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Link href="/produtos" className={buttonVariants({ variant: "outline" })}>
+        <Link href={voltarHref} className={buttonVariants({ variant: "outline" })}>
           Cancelar
         </Link>
         <Button type="submit" disabled={isSubmitting}>

@@ -44,6 +44,9 @@ interface Props {
   categorias: Categoria[];
   sort: SortKey;
   disabled?: boolean;
+  /** Valores iniciais (vindos da URL); troque a `key` para reiniciar. */
+  initialNome?: string;
+  initialCategoria?: number;
   onApply: (filtros: FiltrosAplicados) => void;
   onSortChange: (sort: SortKey) => void;
   onClear: () => void;
@@ -62,12 +65,16 @@ export function ProductFilters({
   categorias,
   sort,
   disabled,
+  initialNome,
+  initialCategoria,
   onApply,
   onSortChange,
   onClear,
 }: Props) {
-  const [nome, setNome] = React.useState("");
-  const [categoria, setCategoria] = React.useState(TODAS);
+  const [nome, setNome] = React.useState(initialNome ?? "");
+  const [categoria, setCategoria] = React.useState(
+    initialCategoria !== undefined ? String(initialCategoria) : TODAS,
+  );
   const [min, setMin] = React.useState("");
   const [max, setMax] = React.useState("");
   const [erro, setErro] = React.useState<string | null>(null);

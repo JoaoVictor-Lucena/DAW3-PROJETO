@@ -1,9 +1,6 @@
-import MeusPedidosPage from "./conteudo";
+import { redirect } from "next/navigation";
 
-/** Área logada: o conteúdo depende da sessão (localStorage) e só aparece no navegador,
- * então não entra na validação de navegação instantânea do Next. */
-export const instant = false;
-
+/** Rota antiga: os pedidos agora ficam no painel do cliente. */
 export default function Page() {
-  return <MeusPedidosPage />;
+  redirect("/conta/pedidos");
 }

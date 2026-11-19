@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon, PackageIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -41,12 +42,39 @@ function sortProdutos(produtos: Produto[], sort: SortKey): Produto[] {
   }
 }
 
+function filtrosDaUrl(params: URLSearchParams): FiltrosAplicados {
+  const nome = params.get("nome")?.trim();
+  const cat = Number(params.get("categoria"));
+  return {
+    nome: nome || undefined,
+    idCategoria: Number.isInteger(cat) && cat > 0 ? cat : undefined,
+  };
+}
+
+/** useSearchParams exige Suspense (Cache Components). */
 export default function ProdutosPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <ProdutosConteudo />
+    </React.Suspense>
+  );
+}
+
+function ProdutosConteudo() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const urlKey = searchParams.toString();
   const canEdit = user?.role === "ADMIN" || user?.role === "VENDEDOR";
 
-  const [filtros, setFiltros] = React.useState<FiltrosAplicados>({});
   const [pageIndex, setPageIndex] = React.useState(0);
+  const [filtros, setFiltros] = React.useState<FiltrosAplicados>(() => filtrosDaUrl(searchParams));
+  const [urlAplicada, setUrlAplicada] = React.useState(urlKey);
+  // Header (busca/categorias) navega com query string: aplica os filtros quando ela muda.
+  if (urlAplicada !== urlKey) {
+    setUrlAplicada(urlKey);
+    setFiltros(filtrosDaUrl(searchParams));
+    setPageIndex(0);
+  }
   const [sort, setSort] = React.useState<SortKey>("none");
   const [reload, setReload] = React.useState(0);
   const [categorias, setCategorias] = React.useState<Categoria[]>([]);
@@ -157,6 +185,9 @@ export default function ProdutosPage() {
       />
 
       <ProductFilters
+        key={urlKey}
+        initialNome={filtros.nome}
+        initialCategoria={filtros.idCategoria}
         categorias={categorias}
         sort={sort}
         disabled={loading}

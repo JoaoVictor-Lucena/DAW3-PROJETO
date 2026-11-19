@@ -22,6 +22,8 @@ export interface PedidoConfirmacao {
   descricao: string;
   acao: string;
   destrutiva?: boolean;
+  /** Texto do botão que fecha sem fazer nada (padrão: "Cancelar"). */
+  voltar?: string;
   executar: () => Promise<void>;
 }
 
@@ -66,7 +68,7 @@ export function Confirmar({
           <AlertDialogDescription>{pedido?.descricao}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={executando}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={executando}>{pedido?.voltar ?? "Cancelar"}</AlertDialogCancel>
           <AlertDialogAction
             variant={pedido?.destrutiva ? "destructive" : "default"}
             disabled={executando}

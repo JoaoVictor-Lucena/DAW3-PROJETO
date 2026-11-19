@@ -13,6 +13,8 @@ interface FavoritosContextValue {
   /** O coração só aparece para visitante (vai para o login) e cliente. */
   disponivel: boolean;
   isFavorito: (idProduto: number) => boolean;
+  /** Quantidade de produtos favoritados (0 para visitante). */
+  quantidade: number;
   alternar: (idProduto: number, nome?: string) => Promise<void>;
   /** Muda a cada alteração, para telas que listam favoritos saberem quando recarregar. */
   versao: number;
@@ -88,8 +90,8 @@ export function FavoritosProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = React.useMemo(
-    () => ({ disponivel: !user || ehCliente, isFavorito, alternar, versao }),
-    [user, ehCliente, isFavorito, alternar, versao],
+    () => ({ disponivel: !user || ehCliente, isFavorito, quantidade: ids.size, alternar, versao }),
+    [user, ehCliente, isFavorito, ids, alternar, versao],
   );
 
   return <FavoritosContext.Provider value={value}>{children}</FavoritosContext.Provider>;

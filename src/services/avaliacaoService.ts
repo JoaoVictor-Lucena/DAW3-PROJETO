@@ -1,5 +1,5 @@
 import { api, normalizePage } from "@/services/api";
-import type { Avaliacao, AvaliacaoRequest, Page, RawPage } from "@/types";
+import type { Avaliacao, AvaliacaoRequest, Page, PodeAvaliar, RawPage } from "@/types";
 
 const BASE = "/avaliacoes";
 
@@ -22,6 +22,10 @@ export const avaliacaoService = {
     } while (!atual.last && page < atual.totalPages);
     return todas;
   },
+
+  /** CLIENTE: só quem recebeu o produto (pedido entregue) e ainda não o avaliou. */
+  podeAvaliar: (idProduto: number) =>
+    api.get<PodeAvaliar>(`${BASE}/pode-avaliar`, { query: { idProduto } }),
 
   criar: (dto: AvaliacaoRequest) => api.post<Avaliacao>(BASE, dto),
 

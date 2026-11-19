@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { LinhaDoTempo } from "@/components/pedidos/LinhaDoTempo";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ETAPA_PEDIDO_LABEL, rotulo } from "@/lib/admin-labels";
 import { formatBRL, formatDateTime } from "@/lib/format";
 import { adminService } from "@/services/adminService";
 import { getErrorMessage } from "@/services/api";
@@ -121,19 +121,7 @@ export function PedidoDetalheDialog({
               ) : historicoAtual.erro ? (
                 <p className="text-sm text-destructive">{historicoAtual.erro}</p>
               ) : (
-                <ol className="space-y-3 border-l pl-4">
-                  {historicoAtual.itens?.map((h) => (
-                    <li key={h.id} className="relative text-sm">
-                      <span className="absolute -left-[21px] top-1.5 size-2.5 rounded-full bg-primary" />
-                      <span className="font-medium">{rotulo(ETAPA_PEDIDO_LABEL, h.etapa)}</span>
-                      <span className="block text-xs text-muted-foreground">
-                        {formatDateTime(h.data)}
-                        {h.nomeAutor && ` · ${h.nomeAutor}`}
-                        {h.descricao && ` · ${h.descricao}`}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                <LinhaDoTempo itens={historicoAtual.itens ?? []} />
               )}
             </section>
           </>

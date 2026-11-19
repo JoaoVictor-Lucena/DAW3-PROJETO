@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   LayoutDashboardIcon,
   MessageSquareTextIcon,
@@ -13,7 +11,7 @@ import {
   WrenchIcon,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { PainelSidebar } from "@/components/layout/PainelSidebar";
 
 const ITENS = [
   { href: "/admin", label: "Visão geral", Icon: LayoutDashboardIcon },
@@ -26,34 +24,7 @@ const ITENS = [
   { href: "/admin/ferramentas", label: "Ferramentas", Icon: WrenchIcon },
 ] as const;
 
-/** Menu lateral do painel do admin (vira uma faixa rolável no celular). */
+/** Menu lateral do painel do administrador. */
 export function AdminSidebar() {
-  const pathname = usePathname();
-
-  return (
-    <nav aria-label="Painel do administrador" className="md:w-52 md:shrink-0">
-      <ul className="flex gap-1 overflow-x-auto pb-2 md:sticky md:top-20 md:flex-col md:overflow-visible md:pb-0">
-        {ITENS.map(({ href, label, Icon }) => {
-          const ativo = href === "/admin" ? pathname === href : pathname.startsWith(href);
-          return (
-            <li key={href} className="shrink-0">
-              <Link
-                href={href}
-                aria-current={ativo ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                  ativo
-                    ? "bg-primary/10 font-medium text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                <Icon className="size-4" />
-                {label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
+  return <PainelSidebar itens={ITENS} ariaLabel="Painel do administrador" />;
 }
