@@ -22,7 +22,7 @@ import { useCarregar } from "@/hooks/useCarregar";
 import { formatDate } from "@/lib/admin-labels";
 import { formatBRL, formatDateTime } from "@/lib/format";
 import { painelVendedorService } from "@/services/painelVendedorService";
-import type { Devolucao, EtapaPedido, Pedido } from "@/types";
+import { devolucaoDoPedido, type DevolucaoDoPedido, type EtapaPedido, type Pedido } from "@/types";
 
 const STATUS_PAGAMENTO: Record<string, string> = {
   APROVADO: "Aprovado",
@@ -45,27 +45,23 @@ export default function VendedorPedidoDetalhePage() {
   const idPedido = Number(id);
 
   const { dados, erro, carregando, recarregar } = useCarregar(`vendedor-pedido-${idPedido}`, async () => {
-    const [pedido, historico, devolucao] = await Promise.all([
+    const [pedido, historico] = await Promise.all([
       painelVendedorService.pedido(idPedido),
       painelVendedorService.historico(idPedido),
-      painelVendedorService
-        .devolucoesPorPedido()
-        .then((porPedido) => porPedido[idPedido] ?? null)
-        .catch((): Devolucao | null => null),
     ]);
-    return { pedido, historico, devolucao };
+    return { pedido, historico };
   });
   useAtualizarAoFocar(recarregar);
 
   const [avancando, setAvancando] = React.useState<Pedido | null>(null);
   const [confirmacao, setConfirmacao] = React.useState<PedidoConfirmacao | null>(null);
 
-  function responderDevolucao(d: Devolucao, aprovar: boolean) {
+  function responderDevolucao(p: Pedido, d: DevolucaoDoPedido, aprovar: boolean) {
     setConfirmacao(
       aprovar
         ? {
-            titulo: `Aprovar a devolução do pedido #${d.idPedido}?`,
-            descricao: `Os itens voltam para o estoque e ${formatBRL(d.valorPedido)} é estornado ao cliente.`,
+            titulo: `Aprovar a devolução do pedido #${p.id}?`,
+            descricao: `Os itens voltam para o estoque e ${formatBRL(p.valorTotal)} é estornado ao cliente.`,
             acao: "Aprovar devolução",
             executar: async () => {
               await painelVendedorService.aprovarDevolucao(d.id);
@@ -74,7 +70,7 @@ export default function VendedorPedidoDetalhePage() {
             },
           }
         : {
-            titulo: `Recusar a devolução do pedido #${d.idPedido}?`,
+            titulo: `Recusar a devolução do pedido #${p.id}?`,
             descricao: "O cliente verá que a devolução foi recusada e poderá abrir uma nova solicitação.",
             acao: "Recusar devolução",
             destrutiva: true,
@@ -105,8 +101,9 @@ export default function VendedorPedidoDetalhePage() {
     );
   }
 
-  const { historico, devolucao } = dados;
-  const etapa = etapaDoPedido(pedido, devolucao);
+  const { historico } = dados;
+  const devolucao = devolucaoDoPedido(pedido);
+  const etapa = etapaDoPedido(pedido);
   const aviso = AVISOS[etapa];
   const foraDoFluxo = etapa === "CANCELADO" || etapa === "PAGAMENTO_RECUSADO" || etapa === "PEDIDO_CRIADO";
   const alcancadas = [...historico.map((h) => h.etapa), etapa];
@@ -123,7 +120,7 @@ export default function VendedorPedidoDetalhePage() {
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold">Pedido #{pedido.id}</h1>
-            <EtapaBadge pedido={pedido} devolucao={devolucao} />
+            <EtapaBadge pedido={pedido} />
           </div>
           <p className="text-sm text-muted-foreground">
             {pedido.nomeCliente} · {formatDateTime(pedido.dataPedido)}
@@ -132,10 +129,10 @@ export default function VendedorPedidoDetalhePage() {
         <div className="flex flex-wrap gap-2">
           {devolucaoPendente && (
             <>
-              <Button variant="outline" onClick={() => responderDevolucao(devolucaoPendente, false)}>
+              <Button variant="outline" onClick={() => responderDevolucao(pedido, devolucaoPendente, false)}>
                 <XIcon /> Recusar devolução
               </Button>
-              <Button onClick={() => responderDevolucao(devolucaoPendente, true)}>
+              <Button onClick={() => responderDevolucao(pedido, devolucaoPendente, true)}>
                 <CheckIcon /> Aprovar devolução
               </Button>
             </>

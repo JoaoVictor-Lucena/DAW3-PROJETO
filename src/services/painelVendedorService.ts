@@ -58,25 +58,6 @@ export const painelVendedorService = {
   devolucoes: (filtros: { status?: StatusDevolucao; page: number }): Promise<Page<Devolucao>> =>
     pagina<Devolucao>("/devolucoes/recebidas", filtros),
 
-  /**
-   * Devoluções recebidas, a mais recente de cada pedido. O `etapaAtual` do pedido continua
-   * "ENTREGUE" quando o cliente pede devolução, então as telas usam este mapa para o badge.
-   */
-  async devolucoesPorPedido(): Promise<Record<number, Devolucao>> {
-    const porPedido: Record<number, Devolucao> = {};
-    let page = 0;
-    let atual: Page<Devolucao>;
-    do {
-      atual = await this.devolucoes({ page });
-      for (const d of atual.content) {
-        const anterior = porPedido[d.idPedido];
-        if (!anterior || d.dataDevolucao > anterior.dataDevolucao) porPedido[d.idPedido] = d;
-      }
-      page += 1;
-    } while (!atual.last && page < Math.min(atual.totalPages, 10));
-    return porPedido;
-  },
-
   aprovarDevolucao: (id: number) => api.patch<Devolucao>(`/devolucoes/${id}/aprovar`),
 
   rejeitarDevolucao: (id: number) => api.patch<Devolucao>(`/devolucoes/${id}/rejeitar`),

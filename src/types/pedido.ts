@@ -73,7 +73,30 @@ export interface Pedido {
   dataEnvio?: string | null;
   dataEntregaPrevista?: string | null;
   dataEntrega?: string | null;
+  /** Devolução mais recente do pedido (ausente se o cliente nunca pediu). */
+  idDevolucao?: number | null;
+  statusDevolucao?: StatusDevolucao | null;
+  dataDevolucao?: string | null;
+  motivoDevolucao?: string | null;
   itens: ItemPedido[];
+}
+
+/** A devolução mais recente de um pedido, montada a partir dos campos do próprio pedido. */
+export interface DevolucaoDoPedido {
+  id: number;
+  status: StatusDevolucao;
+  dataDevolucao: string;
+  motivo: string;
+}
+
+export function devolucaoDoPedido(p: Pedido): DevolucaoDoPedido | null {
+  if (!p.idDevolucao || !p.statusDevolucao) return null;
+  return {
+    id: p.idDevolucao,
+    status: p.statusDevolucao,
+    dataDevolucao: p.dataDevolucao ?? "",
+    motivo: p.motivoDevolucao ?? "",
+  };
 }
 
 export interface PedidoHistorico {
