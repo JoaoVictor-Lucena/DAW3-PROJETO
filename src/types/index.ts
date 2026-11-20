@@ -11,6 +11,22 @@ export * from "./pedido";
 export * from "./carrinho";
 export * from "./notificacao";
 
+export interface VendedorPublico {
+  id: number | string;
+  nome: string;
+  nomeLoja?: string;
+  razaoSocial?: string;
+  imagemUrl?: string | null;
+  bannerUrl?: string | null;
+  banner?: string | null;
+  descricao?: string | null;
+  dataCadastro?: string;
+  totalProdutos?: number;
+  mediaAvaliacoes?: number | null;
+  lojaAberta?: boolean;
+  totalAvaliacoes?: number;
+}
+
 export interface Endereco {
   id?: number;
   cep: string;

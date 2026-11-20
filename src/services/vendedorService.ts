@@ -1,9 +1,15 @@
 import { api, normalizePage } from "@/services/api";
-import type { Page, RawPage, Vendedor } from "@/types";
+import type { Page, RawPage, Vendedor, VendedorPublico } from "@/types";
 
 const BASE = "/vendedores";
 
+export async function getVendedorPublico(id: string | number): Promise<VendedorPublico> {
+  return api.get<VendedorPublico>(`${BASE}/${id}`);
+}
+
 export const vendedorService = {
+  getVendedorPublico,
+
   async listar(page = 0): Promise<Page<Vendedor>> {
     return normalizePage(await api.get<RawPage<Vendedor>>(BASE, { query: { page } }));
   },

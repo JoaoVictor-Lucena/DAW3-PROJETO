@@ -21,7 +21,40 @@ function temFiltro(f: ProdutoFiltros): boolean {
   );
 }
 
+export interface BuscarProdutosPorVendedorParams {
+  pagina?: number;
+  tamanho?: number;
+  ordenacao?: string;
+  idCategoria?: number;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+export async function getProdutosPorVendedor(
+  idVendedor: string | number,
+  params?: BuscarProdutosPorVendedorParams,
+): Promise<Page<Produto>> {
+  const page = params?.pagina ?? params?.page ?? 0;
+  const size = params?.tamanho ?? params?.size;
+  const sort = params?.ordenacao ?? params?.sort;
+
+  const raw = await api.get<RawPage<Produto>>(`${BASE}/buscar`, {
+    query: {
+      vendedor: idVendedor,
+      idVendedor: idVendedor,
+      idCategoria: params?.idCategoria,
+      page,
+      size,
+      sort,
+    },
+  });
+  return normalizePage(raw);
+}
+
 export const produtoService = {
+  getProdutosPorVendedor,
+
   async listar(page = 0, size?: number): Promise<Page<Produto>> {
     return normalizePage(await api.get<RawPage<Produto>>(BASE, { query: { page, size } }));
   },
