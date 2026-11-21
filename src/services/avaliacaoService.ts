@@ -27,6 +27,13 @@ export const avaliacaoService = {
   podeAvaliar: (idProduto: number) =>
     api.get<PodeAvaliar>(`${BASE}/pode-avaliar`, { query: { idProduto } }),
 
+  /** CLIENTE: lista as avaliações feitas pelo cliente logado. */
+  async minhas(page = 0): Promise<Page<Avaliacao>> {
+    return normalizePage(
+      await api.get<RawPage<Avaliacao>>(`${BASE}/minhas`, { query: { page } }),
+    );
+  },
+
   criar: (dto: AvaliacaoRequest) => api.post<Avaliacao>(BASE, dto),
 
   remover: (id: number) => api.delete<void>(`${BASE}/${id}`),

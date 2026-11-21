@@ -12,3 +12,15 @@ export interface ClienteRequest {
   senha: string;
   telefone?: string;
 }
+
+export interface AlterarSenhaRequest {
+  senhaAtual: string;
+  novaSenha: string;
+}
+
+export interface AtualizarClienteRequest {
+  nome?: string;
+  telefone?: string;
+  email?: string;
+}
+

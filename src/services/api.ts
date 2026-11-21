@@ -77,8 +77,17 @@ export interface RequestOptions extends Omit<RequestInit, "body" | "method"> {
   skipAuth?: boolean;
 }
 
+function getBaseUrl(): string {
+  if (typeof window === "undefined") {
+    return (process.env.BACKEND_URL ?? "http://localhost:8080").replace(/\/+$/, "");
+  }
+  return API_BASE_URL;
+}
+
 function buildUrl(path: string, query?: Record<string, QueryValue>): string {
-  const url = `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const base = getBaseUrl();
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${base}${cleanPath}`;
   if (!query) return url;
 
   const params = new URLSearchParams();
@@ -125,7 +134,9 @@ async function request<T>(
   if (response.status === 401 && token) {
     // Token expirado ou inválido: encerra a sessão e avisa o AuthContext.
     tokenStorage.clear();
-    window.dispatchEvent(new Event(SESSAO_EXPIRADA_EVENT));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(SESSAO_EXPIRADA_EVENT));
+    }
     // Leituras do catálogo são públicas: tenta de novo como visitante.
     if (method === "GET") return request<T>(method, path, { ...options, skipAuth: true });
   }
