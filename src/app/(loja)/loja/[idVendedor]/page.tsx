@@ -36,11 +36,11 @@ export async function generateMetadata({ params }: Pick<LojaPageProps, "params">
     const vendedor = await vendedorService.getVendedorPublico(idVendedor);
     const nome = vendedor.nomeLoja || vendedor.nome || vendedor.razaoSocial || "Loja";
     return {
-      title: `${nome} | Marketplace`,
+      title: nome,
       description: vendedor.descricao || `Conheça os produtos e ofertas de ${nome}`,
     };
   } catch {
-    return { title: "Loja não encontrada | Marketplace" };
+    return { title: "Loja não encontrada" };
   }
 }
 
