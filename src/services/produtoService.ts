@@ -2,6 +2,7 @@ import { api, normalizePage } from "@/services/api";
 import type {
   Page,
   Produto,
+  ProdutoBuscaVitrine,
   ProdutoFiltros,
   ProdutoRequest,
   RawPage,
@@ -9,7 +10,6 @@ import type {
 
 const BASE = "/produtos";
 
-/** Maior página aceita pelo back-end (`PAGE_SIZE_MAXIMO`). */
 const TAMANHO_PAGINA_EXPORTACAO = 50;
 
 function temFiltro(f: ProdutoFiltros): boolean {
@@ -76,7 +76,33 @@ export const produtoService = {
     return normalizePage(raw);
   },
 
-  /** Percorre todas as páginas da busca e devolve todos os produtos que atendem aos filtros. */
+  async buscarVitrine(f: ProdutoBuscaVitrine = {}): Promise<Page<Produto>> {
+    const query = {
+      nome: f.nome?.trim(),
+      idCategoria: f.idCategoria,
+      precoMin: f.precoMin,
+      precoMax: f.precoMax,
+      notaMin: f.notaMin,
+      emEstoque: f.somenteEmEstoque ? true : undefined,
+      idVendedor: f.idVendedor,
+      vendedor: f.idVendedor,
+      page: f.page ?? 0,
+      size: f.size,
+      sort: f.sort,
+    };
+    const temFiltro =
+      !!query.nome ||
+      query.idCategoria !== undefined ||
+      query.precoMin !== undefined ||
+      query.precoMax !== undefined ||
+      query.notaMin !== undefined ||
+      query.emEstoque !== undefined ||
+      query.idVendedor !== undefined;
+
+    const raw = await api.get<RawPage<Produto>>(temFiltro ? `${BASE}/buscar` : BASE, { query });
+    return normalizePage(raw);
+  },
+
   async buscarTodos(filtros: Omit<ProdutoFiltros, "page" | "size"> = {}): Promise<Produto[]> {
     const todos: Produto[] = [];
     let page = 0;

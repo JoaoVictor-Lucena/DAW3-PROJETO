@@ -9,7 +9,6 @@ export function BuscaProdutos({
   onBuscar,
 }: {
   className?: string;
-  /** Chamado após navegar (ex.: fechar o Sheet no mobile). */
   onBuscar?: () => void;
 }) {
   const router = useRouter();
@@ -18,7 +17,7 @@ export function BuscaProdutos({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const termo = busca.trim();
-    router.push(termo ? `/produtos?nome=${encodeURIComponent(termo)}` : "/produtos");
+    router.push(termo ? `/busca?q=${encodeURIComponent(termo)}` : "/busca");
     onBuscar?.();
   }
 
