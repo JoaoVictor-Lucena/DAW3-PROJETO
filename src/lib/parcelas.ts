@@ -1,8 +1,8 @@
-export const MAX_PARCELAS = 12;
+import { formatBRL } from "@/lib/format";
 
-const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+export const MAX_PARCELAS = 12;
 
 export function textoParcelamento(preco: number, parcelas = MAX_PARCELAS): string | null {
   if (!Number.isFinite(preco) || preco <= 0) return null;
-  return `${parcelas}x de ${brl.format(preco / parcelas)}`;
+  return `${parcelas}x de ${formatBRL(preco / parcelas)}`;
 }

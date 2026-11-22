@@ -7,16 +7,24 @@ import { LojasEmDestaque } from "@/components/vitrine/LojasEmDestaque";
 import { Newsletter } from "@/components/vitrine/Newsletter";
 import { SecaoProdutos } from "@/components/vitrine/SecaoProdutos";
 import { useCarregar } from "@/hooks/useCarregar";
-import { lojasEmDestaque, maisVendidos, novidades, ofertas } from "@/lib/vitrine";
 import { produtoService } from "@/services/produtoService";
+import { vendedorService } from "@/services/vendedorService";
 
-const TAMANHO_BUSCA = 50;
+const LIMITE_PRODUTOS = 12;
+const LIMITE_LOJAS = 8;
+
+function carregarVitrine() {
+  return Promise.all([
+    produtoService.buscar({ sort: "preco,asc", somenteComEstoque: true, size: LIMITE_PRODUTOS }),
+    produtoService.maisVendidos(LIMITE_PRODUTOS),
+    produtoService.buscar({ sort: "dataCadastro,desc", size: LIMITE_PRODUTOS }),
+    vendedorService.destaque(LIMITE_LOJAS),
+  ]);
+}
 
 export default function HomePage() {
-  const { dados, erro, carregando, recarregar } = useCarregar("home-produtos", () =>
-    produtoService.listar(0, TAMANHO_BUSCA),
-  );
-  const produtos = dados?.content ?? [];
+  const { dados, erro, carregando, recarregar } = useCarregar("home-vitrine", carregarVitrine);
+  const [paginaOfertas, maisVendidos = [], paginaNovidades, lojas = []] = dados ?? [];
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-6">
@@ -33,14 +41,18 @@ export default function HomePage() {
         </div>
       ) : (
         <>
-          <SecaoProdutos titulo="Ofertas" produtos={ofertas(produtos)} carregando={carregando} />
           <SecaoProdutos
-            titulo="Mais vendidos"
-            produtos={maisVendidos(produtos)}
+            titulo="Ofertas"
+            produtos={paginaOfertas?.content ?? []}
             carregando={carregando}
           />
-          <SecaoProdutos titulo="Novidades" produtos={novidades(produtos)} carregando={carregando} />
-          <LojasEmDestaque lojas={lojasEmDestaque(produtos)} carregando={carregando} />
+          <SecaoProdutos titulo="Mais vendidos" produtos={maisVendidos} carregando={carregando} />
+          <SecaoProdutos
+            titulo="Novidades"
+            produtos={paginaNovidades?.content ?? []}
+            carregando={carregando}
+          />
+          <LojasEmDestaque lojas={lojas} carregando={carregando} />
         </>
       )}
 
