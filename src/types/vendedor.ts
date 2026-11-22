@@ -21,12 +21,10 @@ export interface VendedorRequest {
   senha: string;
 }
 
-/** Campos do perfil da loja que o próprio vendedor pode alterar (todos opcionais no PATCH). */
 export interface PerfilLojaRequest {
   nome?: string;
   razaoSocial?: string;
   descricao?: string;
-  /** Envie "" para remover a capa. */
   bannerUrl?: string;
 }
 
@@ -56,8 +54,18 @@ export interface DashboardVendedor {
   pedidosPorEtapa: Record<string, number>;
   serie: PontoSerie[];
   topProdutos: ProdutoVendido[];
-  /** Produtos com estoque ≤ 5, do menor para o maior. */
   estoqueBaixo: ProdutoEstoqueBaixo[];
+  mediaAvaliacoes: number | null;
+  totalAvaliacoes: number;
+}
+
+export interface VendedorPublico {
+  id: number;
+  nome: string;
+  razaoSocial: string;
+  descricao?: string | null;
+  bannerUrl?: string | null;
+  totalProdutos: number;
   mediaAvaliacoes: number | null;
   totalAvaliacoes: number;
 }
