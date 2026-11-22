@@ -10,7 +10,6 @@ import type {
 
 const BASE = "/produtos";
 
-/** Maior página aceita pelo back-end (`PAGE_SIZE_MAXIMO`). */
 const TAMANHO_PAGINA_EXPORTACAO = 50;
 
 function temFiltro(f: ProdutoFiltros): boolean {
@@ -18,7 +17,9 @@ function temFiltro(f: ProdutoFiltros): boolean {
     !!f.nome?.trim() ||
     f.idCategoria !== undefined ||
     f.precoMin !== undefined ||
-    f.precoMax !== undefined
+    f.precoMax !== undefined ||
+    !!f.sort ||
+    f.somenteComEstoque !== undefined
   );
 }
 
@@ -70,6 +71,8 @@ export const produtoService = {
         idCategoria: filtros.idCategoria,
         precoMin: filtros.precoMin,
         precoMax: filtros.precoMax,
+        sort: filtros.sort,
+        somenteComEstoque: filtros.somenteComEstoque,
         page,
         size: filtros.size,
       },
@@ -98,6 +101,8 @@ export const produtoService = {
     });
     return normalizePage(raw);
   },
+
+  maisVendidos: (limite = 10) => api.get<Produto[]>(`${BASE}/mais-vendidos`, { query: { limite } }),
 
   /** Percorre todas as páginas da busca e devolve todos os produtos que atendem aos filtros. */
   async buscarTodos(filtros: Omit<ProdutoFiltros, "page" | "size"> = {}): Promise<Produto[]> {

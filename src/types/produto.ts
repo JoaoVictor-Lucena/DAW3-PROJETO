@@ -30,6 +30,8 @@ export interface ProdutoFiltros {
   idCategoria?: number;
   precoMin?: number;
   precoMax?: number;
+  sort?: string;
+  somenteComEstoque?: boolean;
   page?: number;
   size?: number;
 }
