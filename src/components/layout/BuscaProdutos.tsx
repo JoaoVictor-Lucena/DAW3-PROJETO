@@ -18,7 +18,7 @@ export function BuscaProdutos({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const termo = busca.trim();
-    router.push(termo ? `/produtos?nome=${encodeURIComponent(termo)}` : "/produtos");
+    router.push(termo ? `/busca?q=${encodeURIComponent(termo)}` : "/busca");
     onBuscar?.();
   }
 

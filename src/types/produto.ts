@@ -22,7 +22,6 @@ export interface ProdutoRequest {
   estoque: number;
   idCategoria: number;
   idVendedor?: number;
-  /** Obrigatória no back-end ao criar um produto (URL http/https). */
   imagemUrl?: string;
 }
 
@@ -33,6 +32,19 @@ export interface ProdutoFiltros {
   precoMax?: number;
   sort?: string;
   somenteComEstoque?: boolean;
+  page?: number;
+  size?: number;
+}
+
+export interface ProdutoBuscaVitrine {
+  nome?: string;
+  idCategoria?: number;
+  precoMin?: number;
+  precoMax?: number;
+  avaliacaoMin?: number;
+  somenteComEstoque?: boolean;
+  idVendedor?: number;
+  sort?: string;
   page?: number;
   size?: number;
 }
