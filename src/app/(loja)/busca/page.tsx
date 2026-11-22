@@ -4,7 +4,7 @@ import { PaginaBusca } from "@/components/busca/PaginaBusca";
 import type { SearchParams } from "@/lib/busca";
 
 export const metadata: Metadata = {
-  title: "Busca | Marketplace",
+  title: "Busca",
   description: "Busque produtos e refine por categoria, preço, avaliação, estoque e loja.",
 };
 

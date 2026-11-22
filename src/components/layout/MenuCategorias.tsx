@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { categoriaService } from "@/services/categoriaService";
 import type { Categoria } from "@/types";
 
+/** Usado quando GET /categorias falha. */
 const CATEGORIAS_FALLBACK: Categoria[] = [
   { id: 1, nome: "Informática", descricao: null },
   { id: 2, nome: "Smartphones", descricao: null },
@@ -17,6 +18,7 @@ const CATEGORIAS_FALLBACK: Categoria[] = [
   { id: 5, nome: "Esportes", descricao: null },
 ];
 
+/** Busca GET /categorias; mantém o fallback se falhar. */
 export function useCategorias(): Categoria[] {
   const [categorias, setCategorias] = React.useState<Categoria[]>(CATEGORIAS_FALLBACK);
 

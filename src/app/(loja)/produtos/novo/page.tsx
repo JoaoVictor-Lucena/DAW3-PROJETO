@@ -12,7 +12,6 @@ import type { ProdutoRequest } from "@/types";
 export default function NovoProdutoPage() {
   const router = useRouter();
   const { user } = useAuth();
-  // O vendedor volta para o próprio painel; o admin, para o catálogo.
   const destino = user?.role === "VENDEDOR" ? "/vendedor/produtos" : "/produtos";
 
   async function handleSubmit(dto: ProdutoRequest) {

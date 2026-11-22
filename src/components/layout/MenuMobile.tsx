@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+/** Hambúrguer + Sheet lateral (só < md): busca, categorias e benefícios. */
 export function MenuMobile() {
   const [aberto, setAberto] = React.useState(false);
   const categorias = useCategorias();

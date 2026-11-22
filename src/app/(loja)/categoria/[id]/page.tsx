@@ -20,15 +20,15 @@ function idValido(valor: string): number | null {
 export async function generateMetadata({ params }: Pick<CategoriaPageProps, "params">): Promise<Metadata> {
   const { id } = await params;
   const idCategoria = idValido(id);
-  if (idCategoria === null) return { title: "Categoria não encontrada | Marketplace" };
+  if (idCategoria === null) return { title: "Categoria não encontrada" };
   try {
     const categoria = await categoriaService.buscarPorId(idCategoria);
     return {
-      title: `${categoria.nome} | Marketplace`,
+      title: categoria.nome,
       description: categoria.descricao || `Produtos da categoria ${categoria.nome}`,
     };
   } catch {
-    return { title: "Categoria não encontrada | Marketplace" };
+    return { title: "Categoria não encontrada" };
   }
 }
 

@@ -39,8 +39,8 @@ export interface ProdutoBuscaVitrine {
   idCategoria?: number;
   precoMin?: number;
   precoMax?: number;
-  notaMin?: number;
-  somenteEmEstoque?: boolean;
+  avaliacaoMin?: number;
+  somenteComEstoque?: boolean;
   idVendedor?: number;
   sort?: string;
   page?: number;

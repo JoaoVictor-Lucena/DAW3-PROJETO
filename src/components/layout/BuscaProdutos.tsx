@@ -9,6 +9,7 @@ export function BuscaProdutos({
   onBuscar,
 }: {
   className?: string;
+  /** Chamado após navegar (ex.: fechar o Sheet no mobile). */
   onBuscar?: () => void;
 }) {
   const router = useRouter();
