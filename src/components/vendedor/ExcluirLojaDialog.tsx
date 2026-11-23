@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { ApiError, getErrorMessage } from "@/services/api";
-import { vendedorService } from "@/services/vendedorService";
+import { authService } from "@/services/authService";
 
 const excluirSchema = z.object({
   senha: z
@@ -64,7 +64,7 @@ export function ExcluirLojaDialog({ open, nomeLoja, onOpenChange }: ExcluirLojaD
 
   async function onSubmit(values: ExcluirValues) {
     try {
-      await vendedorService.excluirConta(values.senha);
+      await authService.excluirConta(values.senha);
       toast.success("Sua conta e sua loja foram excluídas.");
       reset({ senha: "" });
       onOpenChange(false);

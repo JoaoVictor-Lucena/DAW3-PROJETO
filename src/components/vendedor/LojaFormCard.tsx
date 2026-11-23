@@ -15,8 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "@/lib/admin-labels";
 import { applyApiFieldErrors } from "@/lib/form-errors";
 import { formatCpfCnpj } from "@/lib/format";
+import { useAuth } from "@/context/AuthContext";
 import { ApiError, getErrorMessage } from "@/services/api";
-import { vendedorService } from "@/services/vendedorService";
+import { painelVendedorService } from "@/services/painelVendedorService";
 import type { PerfilLojaRequest, Vendedor } from "@/types";
 
 const URL_IMAGEM = /^https?:\/\/\S+$/i;
@@ -48,25 +49,13 @@ type LojaFormValues = z.infer<typeof lojaSchema>;
 
 const FIELDS = ["nome", "razaoSocial", "descricao", "bannerUrl"] as const;
 
-function sincronizarNomeSessao(nome: string) {
-  try {
-    const sessionRaw = window.localStorage.getItem("marketplace.user");
-    if (!sessionRaw) return;
-    const parsed = JSON.parse(sessionRaw) as Record<string, unknown>;
-    parsed.nome = nome;
-    window.localStorage.setItem("marketplace.user", JSON.stringify(parsed));
-    window.dispatchEvent(new Event("storage"));
-  } catch {
-    // Ignora erro de serialização local
-  }
-}
-
 interface LojaFormCardProps {
   vendedor: Vendedor;
-  onAtualizado: (atualizado: Vendedor) => void;
+  onAtualizado: () => void;
 }
 
 export function LojaFormCard({ vendedor, onAtualizado }: LojaFormCardProps) {
+  const { atualizarUsuario } = useAuth();
   const [capaFalhou, setCapaFalhou] = React.useState<string | null>(null);
 
   const {
@@ -75,7 +64,7 @@ export function LojaFormCard({ vendedor, onAtualizado }: LojaFormCardProps) {
     handleSubmit,
     reset,
     setError,
-    formState: { errors, isDirty, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<LojaFormValues>({
     resolver: zodResolver(lojaSchema),
     defaultValues: {
@@ -85,21 +74,6 @@ export function LojaFormCard({ vendedor, onAtualizado }: LojaFormCardProps) {
       bannerUrl: vendedor.bannerUrl ?? "",
     },
   });
-
-  const valoresServidorSerializados = JSON.stringify({
-    nome: vendedor.nome,
-    razaoSocial: vendedor.razaoSocial,
-    descricao: vendedor.descricao ?? "",
-    bannerUrl: vendedor.bannerUrl ?? "",
-  });
-  const ultimoServidorRef = React.useRef(valoresServidorSerializados);
-
-  React.useEffect(() => {
-    if (ultimoServidorRef.current === valoresServidorSerializados) return;
-    if (isDirty) return;
-    ultimoServidorRef.current = valoresServidorSerializados;
-    reset(JSON.parse(valoresServidorSerializados) as LojaFormValues);
-  }, [valoresServidorSerializados, isDirty, reset]);
 
   const descricaoAtual = useWatch({ control, name: "descricao" }) ?? "";
   const bannerUrlAtual = (useWatch({ control, name: "bannerUrl" }) ?? "").trim();
@@ -115,8 +89,9 @@ export function LojaFormCard({ vendedor, onAtualizado }: LojaFormCardProps) {
     };
 
     try {
-      const atualizado = await vendedorService.atualizar(vendedor.id, dto);
-      sincronizarNomeSessao(atualizado.nome);
+      const atualizado = await painelVendedorService.atualizarPerfil(vendedor.id, dto);
+      // O nome do responsável aparece no header: atualiza a sessão para refletir na hora.
+      atualizarUsuario({ nome: atualizado.nome });
       reset({
         nome: atualizado.nome,
         razaoSocial: atualizado.razaoSocial,
@@ -124,7 +99,7 @@ export function LojaFormCard({ vendedor, onAtualizado }: LojaFormCardProps) {
         bannerUrl: atualizado.bannerUrl ?? "",
       });
       toast.success("Dados da loja atualizados com sucesso.");
-      onAtualizado(atualizado);
+      onAtualizado();
     } catch (error) {
       const mapped =
         error instanceof ApiError &&

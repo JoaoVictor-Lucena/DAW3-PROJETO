@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ExternalLinkIcon, ShieldAlertIcon, StoreIcon, Trash2Icon } from "lucide-react";
+import { ExternalLinkIcon, StoreIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { CabecalhoPagina } from "@/components/admin/CabecalhoPagina";
@@ -13,10 +13,8 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExcluirLojaDialog } from "@/components/vendedor/ExcluirLojaDialog";
 import { LojaFormCard } from "@/components/vendedor/LojaFormCard";
-import { useAuth } from "@/context/AuthContext";
 import { useCarregar } from "@/hooks/useCarregar";
 import { painelVendedorService } from "@/services/painelVendedorService";
-import type { Vendedor } from "@/types";
 
 function PerfilLojaSkeleton() {
   return (
@@ -29,15 +27,13 @@ function PerfilLojaSkeleton() {
 }
 
 export default function PerfilLojaPage() {
-  const { user } = useAuth();
-  const { dados, erro, carregando, recarregar } = useCarregar("perfil-loja", () =>
+  // GET /vendedores/me devolve sempre a loja do vendedor logado, e o back-end recusa (403)
+  // qualquer alteração na loja de outro: não há como abrir a loja de outra pessoa aqui.
+  const { dados: vendedor, erro, carregando, recarregar } = useCarregar("perfil-loja", () =>
     painelVendedorService.perfil(),
   );
   const [confirmacao, setConfirmacao] = React.useState<PedidoConfirmacao | null>(null);
   const [excluirAberto, setExcluirAberto] = React.useState(false);
-  const [override, setOverride] = React.useState<{ base: Vendedor; valor: Vendedor } | null>(null);
-
-  const vendedor = override && dados && override.base === dados ? override.valor : dados;
 
   if (!vendedor) {
     return (
@@ -60,25 +56,6 @@ export default function PerfilLojaPage() {
     );
   }
 
-  // Checagem defensiva de propriedade no cliente (a autoridade final é o back-end).
-  if (!user || user.id === undefined || vendedor.id !== user.id) {
-    return (
-      <>
-        <CabecalhoPagina
-          titulo="Perfil da loja"
-          descricao="Gerencie os dados, a disponibilidade e o encerramento da sua loja."
-        />
-        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed p-10 text-center">
-          <ShieldAlertIcon className="size-8 text-destructive" />
-          <p className="font-medium">Acesso negado</p>
-          <p className="text-sm text-muted-foreground">
-            Você não tem permissão para visualizar ou editar os dados desta loja.
-          </p>
-        </div>
-      </>
-    );
-  }
-
   function alternarLoja() {
     if (!vendedor) return;
     const abrir = vendedor.lojaAberta === false;
@@ -90,8 +67,7 @@ export default function PerfilLojaPage() {
       acao: abrir ? "Reabrir loja" : "Fechar loja",
       destrutiva: !abrir,
       executar: async () => {
-        const atualizado = await painelVendedorService.alterarLoja(abrir);
-        if (dados) setOverride({ base: dados, valor: atualizado });
+        await painelVendedorService.alterarLoja(abrir);
         toast.success(abrir ? "Loja reaberta." : "Loja fechada temporariamente.");
         recarregar();
       },
@@ -147,10 +123,7 @@ export default function PerfilLojaPage() {
         <LojaFormCard
           key={vendedor.id}
           vendedor={vendedor}
-          onAtualizado={(atualizado) => {
-            if (dados) setOverride({ base: dados, valor: atualizado });
-            recarregar();
-          }}
+          onAtualizado={recarregar}
         />
 
         <Card className="border-destructive/40">

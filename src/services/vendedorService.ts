@@ -1,5 +1,5 @@
 import { api, normalizePage } from "@/services/api";
-import type { Page, PerfilLojaRequest, RawPage, Vendedor, VendedorPublico } from "@/types";
+import type { Page, RawPage, Vendedor, VendedorPublico } from "@/types";
 
 const BASE = "/vendedores";
 
@@ -29,8 +29,4 @@ export const vendedorService = {
   destaque: (limite = 8) => api.get<VendedorPublico[]>(`${BASE}/destaque`, { query: { limite } }),
 
   buscarPorId: (id: number) => api.get<Vendedor>(`${BASE}/${id}`),
-
-  atualizar: (id: number, dto: PerfilLojaRequest) => api.patch<Vendedor>(`${BASE}/${id}`, dto),
-
-  excluirConta: (senha: string) => api.delete<void>("/usuarios/me", { body: { senha } }),
 };
