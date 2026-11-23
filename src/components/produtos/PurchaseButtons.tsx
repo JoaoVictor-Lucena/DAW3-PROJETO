@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getErrorMessage } from "@/services/api";
 import { useCart } from "@/context/CartContext";
-import { BLOCKED_MESSAGE, useRequireAuth } from "@/hooks/useRequireAuth";
+import { BLOCKED_MESSAGE, useBloqueioPorPerfil, useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface PurchaseButtonProps {
   produtoId: number;
@@ -17,25 +17,26 @@ interface PurchaseButtonProps {
   disabled?: boolean;
 }
 
-function GuardedButton({
-  acao,
+/** Botão de compra: desabilitado (com explicação) para vendedor e admin. */
+function BotaoCompra({
+  onClick,
   disabled,
   variant,
   children,
 }: {
-  acao: () => void | Promise<void>;
+  onClick: () => void;
   disabled?: boolean;
   variant?: "default" | "outline";
   children: React.ReactNode;
 }) {
-  const { requireAuth, isRoleBlocked } = useRequireAuth(acao);
+  const bloqueado = useBloqueioPorPerfil();
   const button = (
-    <Button variant={variant} onClick={requireAuth} disabled={disabled || isRoleBlocked}>
+    <Button variant={variant} onClick={onClick} disabled={disabled || bloqueado}>
       {children}
     </Button>
   );
 
-  if (!isRoleBlocked) return button;
+  if (!bloqueado) return button;
   return (
     <Tooltip>
       <TooltipTrigger render={<span className="inline-block cursor-not-allowed" />}>
@@ -46,6 +47,7 @@ function GuardedButton({
   );
 }
 
+/** O visitante também adiciona: o item fica no carrinho do navegador até ele entrar. */
 export function AddToCartButton({ produtoId, quantidade = 1, disabled }: PurchaseButtonProps) {
   const { addItem } = useCart();
   const adicionar = React.useCallback(async () => {
@@ -58,27 +60,31 @@ export function AddToCartButton({ produtoId, quantidade = 1, disabled }: Purchas
   }, [addItem, produtoId, quantidade]);
 
   return (
-    <GuardedButton acao={adicionar} disabled={disabled} variant="outline">
+    <BotaoCompra onClick={() => void adicionar()} disabled={disabled} variant="outline">
       <ShoppingCartIcon /> Adicionar ao carrinho
-    </GuardedButton>
+    </BotaoCompra>
   );
 }
 
+/** Adiciona ao carrinho na hora; o login só é pedido para seguir ao checkout. */
 export function BuyNowButton({ produtoId, quantidade = 1, disabled }: PurchaseButtonProps) {
   const router = useRouter();
   const { addItem } = useCart();
-  const comprar = React.useCallback(async () => {
+  const irParaCheckout = React.useCallback(() => router.push("/checkout"), [router]);
+  const { requireAuth } = useRequireAuth(irParaCheckout);
+
+  async function comprar() {
     try {
       await addItem(produtoId, quantidade);
-      router.push("/checkout");
+      requireAuth();
     } catch (error) {
       toast.error(getErrorMessage(error));
     }
-  }, [addItem, produtoId, quantidade, router]);
+  }
 
   return (
-    <GuardedButton acao={comprar} disabled={disabled}>
+    <BotaoCompra onClick={() => void comprar()} disabled={disabled}>
       Comprar agora
-    </GuardedButton>
+    </BotaoCompra>
   );
 }
