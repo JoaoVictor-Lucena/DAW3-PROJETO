@@ -244,7 +244,7 @@ export default function DetalheProdutoPage() {
     produto && resumoEstado?.id === produto.id ? resumoEstado.resumo : null;
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 space-y-8 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-8 px-4 py-8">
       {loading ? (
         <DetalheProdutoSkeleton />
       ) : !produto ? (
@@ -306,13 +306,13 @@ export default function DetalheProdutoPage() {
 
           <div className="grid gap-8 lg:grid-cols-2">
             <GaleriaProduto
-              key={produto.id}
+              key={`galeria-${produto.id}`}
               nome={produto.nome}
               imagemUrl={produto.imagemUrl}
               imagens={produto.imagens}
             />
             <BlocoCompra
-              key={produto.id}
+              key={`compra-${produto.id}`}
               produto={produto}
               resumoAvaliacoes={resumoAtual}
             />
@@ -330,7 +330,7 @@ export default function DetalheProdutoPage() {
           </Card>
 
           <SecaoAvaliacoesProduto
-            key={produto.id}
+            key={`avaliacoes-${produto.id}`}
             idProduto={produto.id}
             onResumoAtualizado={(resumo) =>
               setResumoEstado({ id: produto.id, resumo })
@@ -350,6 +350,6 @@ export default function DetalheProdutoPage() {
           />
         </>
       )}
-    </main>
+    </div>
   );
 }
