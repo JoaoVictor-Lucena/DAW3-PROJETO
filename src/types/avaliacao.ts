@@ -21,3 +21,11 @@ export interface PodeAvaliar {
   podeAvaliar: boolean;
   motivo: string | null;
 }
+
+export interface AvaliacaoResumo {
+  idProduto: number;
+  media: number | null;
+  total: number;
+  /** Chaves "5", "4", "3", "2", "1" mapeando nota → quantidade. */
+  distribuicao: Record<string, number>;
+}
