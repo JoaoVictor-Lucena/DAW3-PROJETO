@@ -108,7 +108,7 @@ export default function DetalheProdutoPage() {
       : null;
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/produtos" className={buttonVariants({ variant: "outline" })}>
           <ArrowLeftIcon /> Voltar para listagem
@@ -263,6 +263,6 @@ export default function DetalheProdutoPage() {
           />
         </>
       )}
-    </main>
+    </div>
   );
 }

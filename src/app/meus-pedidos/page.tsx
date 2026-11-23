@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-/** Rota antiga: os pedidos agora ficam no painel do cliente. */
+export const metadata: Metadata = { title: "Meus pedidos" };
+
 export default function Page() {
   redirect("/conta/pedidos");
 }

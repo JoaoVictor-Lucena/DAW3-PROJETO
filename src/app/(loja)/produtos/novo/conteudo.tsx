@@ -12,7 +12,6 @@ import type { ProdutoRequest } from "@/types";
 export default function NovoProdutoPage() {
   const router = useRouter();
   const { user } = useAuth();
-  // O vendedor volta para o próprio painel; o admin, para o catálogo.
   const destino = user?.role === "VENDEDOR" ? "/vendedor/produtos" : "/produtos";
 
   async function handleSubmit(dto: ProdutoRequest) {
@@ -23,10 +22,10 @@ export default function NovoProdutoPage() {
 
   return (
     <RoleGuard allow={["ADMIN", "VENDEDOR"]}>
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-8">
+      <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-8">
         <h1 className="text-2xl font-bold">Novo Produto</h1>
         <ProductForm submitLabel="Criar produto" voltarHref={destino} onSubmit={handleSubmit} />
-      </main>
+      </div>
     </RoleGuard>
   );
 }

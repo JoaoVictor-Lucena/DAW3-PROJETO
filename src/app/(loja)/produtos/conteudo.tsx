@@ -155,7 +155,7 @@ function ProdutosConteudo() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Produtos</h1>
@@ -253,6 +253,6 @@ function ProdutosConteudo() {
         onOpenChange={(open) => !open && setToDelete(null)}
         onDeleted={handleDeleted}
       />
-    </main>
+    </div>
   );
 }

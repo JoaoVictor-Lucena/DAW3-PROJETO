@@ -37,11 +37,9 @@ export default function CarrinhoPage() {
   const { items, removeItem } = useCart();
   const [detalhes, setDetalhes] = React.useState<Record<number, Produto>>({});
   const [removendoId, setRemovendoId] = React.useState<number | null>(null);
-  // Ids já consultados (com sucesso ou não): evita repetir a busca em loop quando ela falha.
   const consultados = React.useRef(new Set<number>());
   const [semDetalhe, setSemDetalhe] = React.useState<number[]>([]);
 
-  // Busca detalhes de produtos cujos dados (nome/preço) ainda não estejam no item
   React.useEffect(() => {
     const idsFaltantes = items
       .filter((i) => !(i.nome && i.preco !== undefined))
@@ -81,7 +79,6 @@ export default function CarrinhoPage() {
 
   const total = itensFormatados.reduce((acc, i) => acc + i.subtotal, 0);
 
-  // O checkout real (endereço, pagamento e revisão) acontece em /checkout.
   const executarCheckout = React.useCallback(() => {
     if (items.length === 0) {
       toast.warning("Seu carrinho está vazio.");
@@ -118,7 +115,7 @@ export default function CarrinhoPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
+      <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8 outline-none">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Carrinho de Compras</h1>

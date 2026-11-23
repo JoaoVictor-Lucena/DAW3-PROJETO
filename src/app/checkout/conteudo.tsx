@@ -26,7 +26,6 @@ function CheckoutConteudo() {
   const [cupom, setCupom] = React.useState<Cupom | null>(null);
   const [erroCupom, setErroCupom] = React.useState<{ codigo: string; mensagem: string } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  // Trava síncrona: o estado só atualiza no próximo render, então um duplo clique rápido passaria.
   const enviando = React.useRef(false);
 
   async function finalizar() {
@@ -42,7 +41,6 @@ function CheckoutConteudo() {
       clearCart();
       router.push(`/checkout/sucesso?pedido=${encodeURIComponent(compra.codigo)}`);
     } catch (e) {
-      // O back-end responde 422 tanto para cupom quanto para estoque/carrinho; só o texto diferencia.
       if (cupom && e instanceof ApiError && e.status === 422 && /cupom/i.test(e.message)) {
         setErroCupom({ codigo: cupom.codigo, mensagem: e.message });
         setCupom(null);
@@ -56,7 +54,7 @@ function CheckoutConteudo() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-8 p-4 sm:p-6">
+    <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-3xl space-y-8 p-4 outline-none sm:p-6">
       <h1 className="text-2xl font-semibold">Finalizar compra</h1>
       <Stepper passos={PASSOS} atual={passo} />
 
