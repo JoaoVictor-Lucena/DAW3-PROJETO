@@ -25,6 +25,8 @@ export const vendedorService = {
     } while (!atual.last && page < atual.totalPages);
     return todos;
   },
+  
+  destaque: (limite = 8) => api.get<VendedorPublico[]>(`${BASE}/destaque`, { query: { limite } }),
 
   buscarPorId: (id: number) => api.get<Vendedor>(`${BASE}/${id}`),
 };

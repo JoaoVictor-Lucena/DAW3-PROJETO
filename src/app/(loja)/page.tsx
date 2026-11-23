@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Início" };
+import HomePage from "./conteudo";
 
-export default function Home() {
-  redirect("/produtos");
+export const metadata: Metadata = {
+  title: "Início",
+  description: "Ofertas, mais vendidos, novidades e lojas em destaque do marketplace.",
+};
+
+export default function Page() {
+  return <HomePage />;
 }

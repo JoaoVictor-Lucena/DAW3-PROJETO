@@ -2,6 +2,7 @@ import { api, normalizePage } from "@/services/api";
 import type {
   Page,
   Produto,
+  ProdutoBuscaVitrine,
   ProdutoFiltros,
   ProdutoRequest,
   RawPage,
@@ -9,7 +10,6 @@ import type {
 
 const BASE = "/produtos";
 
-/** Maior página aceita pelo back-end (`PAGE_SIZE_MAXIMO`). */
 const TAMANHO_PAGINA_EXPORTACAO = 50;
 
 function temFiltro(f: ProdutoFiltros): boolean {
@@ -17,7 +17,9 @@ function temFiltro(f: ProdutoFiltros): boolean {
     !!f.nome?.trim() ||
     f.idCategoria !== undefined ||
     f.precoMin !== undefined ||
-    f.precoMax !== undefined
+    f.precoMax !== undefined ||
+    !!f.sort ||
+    f.somenteComEstoque !== undefined
   );
 }
 
@@ -69,12 +71,38 @@ export const produtoService = {
         idCategoria: filtros.idCategoria,
         precoMin: filtros.precoMin,
         precoMax: filtros.precoMax,
+        sort: filtros.sort,
+        somenteComEstoque: filtros.somenteComEstoque,
         page,
         size: filtros.size,
       },
     });
     return normalizePage(raw);
   },
+
+  /**
+   * Busca da vitrine pública: combina nome, categoria, faixa de preço, avaliação mínima,
+   * estoque e loja, com ordenação feita no servidor (vale para todas as páginas).
+   */
+  async buscarVitrine(f: ProdutoBuscaVitrine = {}): Promise<Page<Produto>> {
+    const raw = await api.get<RawPage<Produto>>(`${BASE}/buscar`, {
+      query: {
+        nome: f.nome?.trim(),
+        idCategoria: f.idCategoria,
+        precoMin: f.precoMin,
+        precoMax: f.precoMax,
+        avaliacaoMin: f.avaliacaoMin,
+        somenteComEstoque: f.somenteComEstoque ? true : undefined,
+        idVendedor: f.idVendedor,
+        page: f.page ?? 0,
+        size: f.size,
+        sort: f.sort,
+      },
+    });
+    return normalizePage(raw);
+  },
+
+  maisVendidos: (limite = 10) => api.get<Produto[]>(`${BASE}/mais-vendidos`, { query: { limite } }),
 
   /** Percorre todas as páginas da busca e devolve todos os produtos que atendem aos filtros. */
   async buscarTodos(filtros: Omit<ProdutoFiltros, "page" | "size"> = {}): Promise<Produto[]> {

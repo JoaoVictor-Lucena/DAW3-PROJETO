@@ -59,7 +59,7 @@ export function MenuCategorias() {
             {categorias.map((c) => (
               <Menu.LinkItem
                 key={c.id}
-                render={<Link href={`/produtos?categoria=${c.id}`} />}
+                render={<Link href={`/categoria/${c.id}`} />}
                 className="block rounded-md px-2.5 py-1.5 text-sm outline-none data-highlighted:bg-muted"
               >
                 {c.nome}
