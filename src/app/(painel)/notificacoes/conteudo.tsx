@@ -41,7 +41,6 @@ function ListaNotificacoes() {
         await notificacaoService.marcarComoLida(n.id);
         atualizar();
       } catch {
-        // segue para o link mesmo assim
       }
     }
     if (n.link) router.push(n.link);
@@ -63,7 +62,7 @@ function ListaNotificacoes() {
   const lista = dados?.content ?? [];
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8 outline-none">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Notificações</h1>

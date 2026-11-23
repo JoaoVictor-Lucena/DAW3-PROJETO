@@ -14,7 +14,6 @@ import { getErrorMessage } from "@/services/api";
 import type { CompraResponse } from "@/services/checkoutService";
 import { compraService } from "@/services/compraService";
 
-/** QR Code fictício (placeholder): padrão de módulos determinístico, não escaneável. */
 function QrCodePlaceholder() {
   const n = 21;
   const celulas = Array.from({ length: n * n }, (_, i) => {
@@ -45,7 +44,6 @@ function QrCodePlaceholder() {
 
 function Conteudo() {
   const codigo = useSearchParams().get("pedido");
-  // Guarda o resultado junto do código consultado: sem setState síncrono no effect.
   const [resultado, setResultado] = React.useState<{
     codigo: string;
     compra?: CompraResponse;
@@ -69,7 +67,7 @@ function Conteudo() {
   const pix = compra?.metodoPagamento === "PIX";
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 p-6 text-center">
+    <main id="conteudo" tabIndex={-1} className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 p-6 text-center outline-none">
       <CheckCircle2Icon className="size-16 text-green-600" aria-hidden />
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold">Obrigado pela sua compra!</h1>

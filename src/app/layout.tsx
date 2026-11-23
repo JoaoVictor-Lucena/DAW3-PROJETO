@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Marketplace",
-  description: "Front-end do Marketplace (DAW III)",
+  title: { default: "Marketplace", template: "%s | Marketplace" },
+  description: "Marketplace (DAW III): encontre produtos de vários vendedores em um só lugar.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -34,6 +34,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <a
+          href="#conteudo"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+        >
+          Pular para o conteúdo
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
