@@ -8,9 +8,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col">
       <Header />
       <BarraBeneficios />
-      <main className="flex-1">{children}</main>
+      <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">{children}</main>
       <Footer />
     </div>
   );
 }
-

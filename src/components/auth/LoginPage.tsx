@@ -19,8 +19,6 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { destinoAposLogin, redirectSeguro } from "@/lib/auth-routes";
 
-// IMPORTANTE: a página /login mantém os botões de Demo (admin/vendedor/cliente) intactos
-// para apresentação. Ela ignora o useRequireAuth e faz login direto.
 type Mode = "login" | "register";
 
 export function LoginPage() {
@@ -29,7 +27,6 @@ export function LoginPage() {
   const router = useRouter();
   const redirect = redirectSeguro(useSearchParams().get("redirect"));
 
-  // Já logado (ou acabou de logar): volta para a rota pedida ou para o painel do perfil.
   React.useEffect(() => {
     if (user) router.replace(redirect ?? destinoAposLogin(user.role));
   }, [user, redirect, router]);
@@ -37,7 +34,7 @@ export function LoginPage() {
   if (user) return null;
 
   return (
-    <main className="relative flex flex-1 items-center justify-center bg-muted/20 px-4 py-12">
+    <main id="conteudo" tabIndex={-1} className="relative flex flex-1 outline-none items-center justify-center bg-muted/20 px-4 py-12">
       <div className="absolute left-4 top-4">
         <Link href="/" className={buttonVariants({ variant: "ghost", size: "sm" })}>
           <ArrowLeftIcon /> Voltar para a loja

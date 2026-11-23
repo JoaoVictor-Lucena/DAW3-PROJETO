@@ -59,7 +59,7 @@ export function MenuMobile() {
             {categorias.map((c) => (
               <li key={c.id}>
                 <Link
-                  href={`/produtos?categoria=${c.id}`}
+                  href={`/categoria/${c.id}`}
                   onClick={fechar}
                   className="block rounded-md px-2 py-2 text-sm hover:bg-muted"
                 >

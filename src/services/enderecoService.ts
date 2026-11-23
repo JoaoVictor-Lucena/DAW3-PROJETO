@@ -43,4 +43,19 @@ export const enderecoService = {
     });
     return { ...fromApi(criado), bairro: e.bairro };
   },
+
+  /** O back-end expõe a edição como PATCH /enderecos/{id} (não há PUT). */
+  async atualizar(id: number, e: Omit<Endereco, "id">): Promise<Endereco> {
+    const atualizado = await api.patch<EnderecoApi>(`/enderecos/${id}`, {
+      rua: e.logradouro,
+      numero: e.numero,
+      complemento: e.complemento || undefined,
+      cep: e.cep,
+      cidade: e.cidade,
+      estado: e.uf.toUpperCase(),
+    });
+    return { ...fromApi(atualizado), bairro: e.bairro };
+  },
+
+  excluir: (id: number) => api.delete(`/enderecos/${id}`),
 };
