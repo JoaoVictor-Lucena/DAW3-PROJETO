@@ -23,6 +23,8 @@ interface AuthContextValue {
   saindo: boolean;
   login: (credentials: LoginRequest) => Promise<AuthUser>;
   logout: () => void;
+  /** Atualiza nome ou e-mail da sessão depois que o próprio usuário os altera (ex.: no perfil). */
+  atualizarUsuario: (dados: Partial<Pick<AuthUser, "nome" | "email">>) => void;
 }
 
 const USER_KEY = "marketplace.user";
@@ -104,6 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.replace("/");
   }, [limparSessao, pathname, router]);
 
+  const atualizarUsuario = React.useCallback((dados: Partial<Pick<AuthUser, "nome" | "email">>) => {
+    const salvo = window.localStorage.getItem(USER_KEY);
+    if (!salvo) return;
+    window.localStorage.setItem(USER_KEY, JSON.stringify({ ...JSON.parse(salvo), ...dados }));
+    emit();
+  }, []);
+
   React.useEffect(() => {
     function onSessaoExpirada() {
       if (!window.localStorage.getItem(USER_KEY)) return;
@@ -115,8 +124,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [limparSessao]);
 
   const value = React.useMemo(
-    () => ({ user, token, ready, saindo, login, logout }),
-    [user, token, ready, saindo, login, logout],
+    () => ({ user, token, ready, saindo, login, logout, atualizarUsuario }),
+    [user, token, ready, saindo, login, logout, atualizarUsuario],
   );
 
   // A página é sempre renderizada (inclusive no servidor), para o Next conseguir pré-renderizar
