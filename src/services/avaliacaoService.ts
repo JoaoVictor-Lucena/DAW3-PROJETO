@@ -1,5 +1,12 @@
 import { api, normalizePage } from "@/services/api";
-import type { Avaliacao, AvaliacaoRequest, Page, PodeAvaliar, RawPage } from "@/types";
+import type {
+  Avaliacao,
+  AvaliacaoRequest,
+  AvaliacaoResumo,
+  Page,
+  PodeAvaliar,
+  RawPage,
+} from "@/types";
 
 const BASE = "/avaliacoes";
 
@@ -22,6 +29,15 @@ export const avaliacaoService = {
     } while (!atual.last && page < atual.totalPages);
     return todas;
   },
+
+  async listarPorProdutoPaginado(idProduto: number, page = 0): Promise<Page<Avaliacao>> {
+    return normalizePage(
+      await api.get<RawPage<Avaliacao>>(BASE, { query: { idProduto, page } }),
+    );
+  },
+
+  resumo: (idProduto: number) =>
+    api.get<AvaliacaoResumo>(`${BASE}/resumo`, { query: { idProduto } }),
 
   /** CLIENTE: só quem recebeu o produto (pedido entregue) e ainda não o avaliou. */
   podeAvaliar: (idProduto: number) =>
