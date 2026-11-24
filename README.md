@@ -1,168 +1,178 @@
-# Marketplace — Front-end (DAW III - Projeto I)
+# Marketplace — Front-end (DAW III)
 
 - **Instituição:** IFPB — Campus Esperança (CST em Análise e Desenvolvimento de Sistemas)
 - **Disciplina:** Desenvolvimento de Aplicações Web III — Prof. André Atanasio
-- **Equipe:** João Victor de Lucena Silva, Lucas Barbosa Graciano, Paulo Moura Menezes e Valdenio Pantaleao dos Santos.
-- **Repositório Back-end (API Spring Boot):** [https://github.com/devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO)
+- **Equipe:** João Victor de Lucena Silva, Lucas Barbosa Graciano, Paulo Moura Menezes e Valdenio Pantaleao dos Santos
+- **Back-end (API Spring Boot):** [devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO)
+- **Documentação técnica:** [DOCUMENTACAO.md](DOCUMENTACAO.md)
+
+Marketplace com vários vendedores: cada loja cadastra os próprios produtos e o cliente compra de várias lojas num carrinho só. O front-end é feito em **Next.js 16 (App Router) + React 19 + TypeScript**, com **Tailwind CSS v4** e **shadcn/ui**, e consome a API REST do back-end (Spring Boot + PostgreSQL + JWT).
 
 ---
 
-Aplicação web front-end desenvolvida em **React 19 + Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4** e **shadcn/ui** para consumo da API REST do **Marketplace** (Spring Boot 4 + PostgreSQL 16 + JWT).
+## Vídeo de demonstração
 
-O sistema implementa o gerenciamento completo (**CRUD**) da entidade **Produto**, integrado com **Categorias**, **Vendedores** e **Avaliações**, controle de acesso por perfil (`ADMIN`, `VENDEDOR`, `CLIENTE`), filtros combinados, ordenação, estatísticas visuais, exportação de dados e suporte a tema Claro/Escuro.
+[![Assistir ao vídeo de demonstração no YouTube](https://img.youtube.com/vi/e2L_eYKAVTQ/maxresdefault.jpg)](https://youtu.be/e2L_eYKAVTQ)
 
----
-
-## 1. Tecnologias Utilizadas
-
-- **Framework:** Next.js 16.4 (App Router + Turbopack) e React 19.3
-- **Linguagem:** TypeScript 5 (tipagem estrita de contratos e DTOs)
-- **Estilização e UI:** Tailwind CSS v4, shadcn/ui (`@base-ui/react`) e Lucide Icons
-- **Formulários e Validação:** React Hook Form + Zod + `@hookform/resolvers`
-- **Feedback e Tema:** Sonner (notificações Toast) e `next-themes` (Dark/Light Mode)
-- **Integração Back-end:** API REST em Spring Boot 4 (`http://localhost:8080`) via proxy `rewrites` do Next.js (`/api/:path*`) — código-fonte disponível em [devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO)
+**[▶ Assistir no YouTube](https://youtu.be/e2L_eYKAVTQ)** (9 min 40 s): uma compra de ponta a ponta passando pelos três perfis. O visitante monta o carrinho sem login, o cliente compra e acompanha o pedido, o vendedor despacha e responde à devolução, e o administrador acompanha as métricas. A descrição do vídeo tem capítulos por assunto.
 
 ---
 
-## 2. Arquitetura de Pastas
+## 1. Funcionalidades por perfil
 
-O projeto adota separação estrita de responsabilidades em camadas (**RT01 / RT04**):
+### Visitante (sem login)
+- **Vitrine (`/`):** banners, atalhos de categoria e as seções Ofertas, Mais vendidos, Novidades e Lojas em destaque, todas vindas do back-end.
+- **Busca (`/busca`) e categoria (`/categoria/{id}`):** filtros por categoria, faixa de preço, avaliação mínima, estoque e loja; chips removíveis; ordenação no servidor; paginação. Os filtros ficam na URL e, no celular, abrem numa gaveta.
+- **Produto (`/produtos/{id}`):** galeria, parcelamento, seletor de quantidade limitado ao estoque, card da loja, avaliações com histograma e produtos relacionados.
+- **Página pública da loja (`/loja/{id}`):** capa, descrição, nota média e produtos da loja.
+- **Carrinho sem login:** os itens ficam no navegador. O login é pedido só para finalizar a compra, num modal, e o carrinho do visitante é juntado ao da conta.
 
-```text
-src/
-├── app/                              # Rotas do Next.js App Router
-│   ├── layout.tsx                    # Layout raiz (ThemeProvider, AuthProvider, Header, Toaster)
-│   ├── page.tsx                      # Redirecionamento inicial para /produtos
-│   ├── login/page.tsx                # Autenticação JWT e cadastro rápido (Cliente/Vendedor)
-│   └── produtos/
-│       ├── page.tsx                  # Listagem com estatísticas, filtros, ordenação e paginação
-│       ├── novo/page.tsx             # Criação de produto (POST /produtos)
-│       └── [id]/
-│           ├── page.tsx              # Detalhes do produto e lista de avaliações
-│           └── editar/page.tsx       # Edição de produto (PATCH /produtos/{id})
-├── components/
-│   ├── auth/                         # LoginPage, LoginForm (com Demo 1-clique) e RegisterForm
-│   ├── layout/                       # Header, ThemeProvider, ThemeToggle e RoleGuard
-│   ├── produtos/                     # ProductStats, ProductFilters, ProductList, ProductCard,
-│   │                                 # ProductForm, CategoriaQuickDialog, DeleteProductModal,
-│   │                                 # ExportProductsButton e StockBadge
-│   └── ui/                           # Componentes base do shadcn/ui
-├── context/
-│   └── AuthContext.tsx               # Estado global de sessão JWT (token, email, role) e guarda de rotas
-├── lib/
-│   ├── format.ts                     # Formatadores de moeda (BRL) e data/hora (pt-BR)
-│   ├── form-errors.ts                # Mapeamento de erros ProblemDetail do back-end para campos RHF
-│   └── utils.ts                      # Utilitários de classes CSS
-├── services/                         # Camada de acesso a dados (nenhum componente chama fetch direto)
-│   ├── api.ts                        # Cliente HTTP central com Bearer JWT e normalização ProblemDetail
-│   ├── authService.ts                # Login e registro público de clientes/vendedores
-│   ├── produtoService.ts             # CRUD completo e busca parametrizada de produtos
-│   ├── categoriaService.ts           # CRUD e listagem completa de categorias
-│   ├── vendedorService.ts            # Consulta e listagem completa de vendedores
-│   ├── avaliacaoService.ts           # Consulta de avaliações por produto
-│   └── seedService.ts                # População do banco de dados para testes (ADMIN)
-└── types/                            # Contratos TypeScript (Produto, Categoria, Vendedor, Avaliacao,
-                                      # Cliente, AuthResponse, Page<T>, ProblemDetail)
+### Cliente
+- **Checkout em etapas (`/checkout`):** endereço (com preenchimento pelo CEP), pagamento (PIX, cartão ou boleto) com cupom de desconto e revisão. Cada compra gera um pedido por loja.
+- **Minha conta (`/conta`):** visão geral, meus pedidos com filtro, detalhe do pedido com barra de progresso, rastreio e linha do tempo; perfil, endereços, avaliações, devoluções e lista de desejos.
+- **Pós-venda:** cancelamento antes do envio, avaliação do produto depois da entrega e pedido de devolução com motivo.
+- **Notificações:** sino no cabeçalho com as mudanças de status dos pedidos.
+
+### Vendedor
+- **Visão geral (`/vendedor`):** faturamento, pedidos, ticket médio e avaliação da loja, gráfico de vendas por período, pedidos que esperam ação e alertas de estoque baixo.
+- **Meus produtos:** cadastro com imagem por URL, edição, edição rápida de preço, estoque e imagem, e pausar ou reativar o anúncio.
+- **Pedidos recebidos:** avanço do pedido etapa por etapa (pagamento, embalado, despacho com transportadora e rastreio, saiu para entrega, entregue).
+- **Devoluções e avaliações recebidas:** aprovar ou recusar devoluções (aprovar devolve o estoque e estorna o pagamento) e ver o que os clientes disseram.
+- **Perfil da loja (CRUD):** ver, editar nome, razão social, descrição e capa, fechar a loja temporariamente e excluir a conta com confirmação de senha.
+
+### Administrador
+- **Visão geral (`/admin`):** GMV, pedidos, ticket médio, novos usuários, gráficos e rankings de lojas e categorias.
+- **Gestão:** usuários (bloquear e desbloquear), categorias, cupons, produtos de todas as lojas, pedidos e avaliações.
+- **Ferramentas:** popular, limpar ou resetar o banco com dados de demonstração.
+
+### Para todos
+Páginas de erro e de carregamento, metadata em todas as páginas, link "Pular para o conteúdo", foco visível, navegação por teclado nos modais, tema claro e escuro e layout para celular.
+
+---
+
+## 2. Fluxo de compra
+
+```mermaid
+flowchart LR
+    V[Visitante monta o carrinho] --> L[Login no checkout<br/>carrinho é juntado]
+    L --> C[Checkout: endereço,<br/>pagamento e cupom]
+    C --> P[Um pedido por loja]
+    P --> VD[Vendedor avança:<br/>pagamento, embalado,<br/>despacho, entrega]
+    VD --> CL[Cliente acompanha<br/>a linha do tempo]
+    CL --> A[Avalia o produto]
+    CL --> D[Pede devolução]
+    D --> R[Vendedor aprova<br/>ou recusa]
 ```
 
 ---
 
-## 3. Como Executar o Projeto Passo a Passo
+## 3. Rotas
 
-### 3.1. Pré-requisitos
-- **Node.js** 20+ e `npm`
-- **Java 17** e **Docker** (para executar a API back-end e o banco PostgreSQL)
+| Área | Rotas |
+|---|---|
+| Loja (pública) | `/`, `/busca`, `/categoria/{id}`, `/produtos`, `/produtos/{id}`, `/loja/{idVendedor}`, `/carrinho`, `/login` |
+| Compra (cliente) | `/checkout`, `/checkout/sucesso` |
+| Minha conta (cliente) | `/conta`, `/conta/pedidos`, `/conta/pedidos/{id}`, `/conta/perfil`, `/conta/enderecos`, `/conta/avaliacoes`, `/conta/devolucoes`, `/conta/favoritos`, `/notificacoes` |
+| Vendedor | `/vendedor`, `/vendedor/produtos`, `/vendedor/pedidos`, `/vendedor/pedidos/{id}`, `/vendedor/devolucoes`, `/vendedor/avaliacoes`, `/vendedor/loja`, `/produtos/novo`, `/produtos/{id}/editar` |
+| Administrador | `/admin`, `/admin/usuarios`, `/admin/categorias`, `/admin/cupons`, `/admin/produtos`, `/admin/pedidos`, `/admin/avaliacoes`, `/admin/ferramentas` |
 
-### 3.2. Subindo o Back-end (API Spring Boot + PostgreSQL)
-Clone o repositório do back-end em [https://github.com/devlucas-tec/DAW2-PROJETO](https://github.com/devlucas-tec/DAW2-PROJETO) e execute no diretório dele:
+`/produto/{id}` e `/meus-pedidos` redirecionam para `/produtos/{id}` e `/conta/pedidos`.
 
+---
+
+## 4. Tecnologias
+
+- **Framework:** Next.js 16.4 (App Router, Cache Components e saída `standalone`) e React 19.3
+- **Linguagem:** TypeScript 5
+- **Interface:** Tailwind CSS v4, shadcn/ui (`@base-ui/react`), Lucide Icons e Recharts (gráficos)
+- **Formulários:** React Hook Form + Zod
+- **Feedback e tema:** Sonner (toasts) e `next-themes`
+- **Integração:** chamadas a `/api/*` encaminhadas ao back-end pelo `rewrites` do Next (sem CORS). O endereço do back-end vem de `BACKEND_URL` (padrão `http://localhost:8080`).
+- **Entrega:** imagem Docker `devlucas07/marketplace-frontend` publicada no Docker Hub pelo GitHub Actions a cada merge na `main`
+
+---
+
+## 5. Como executar
+
+### 5.1. Pré-requisitos
+- Node.js 20+ e npm
+- Java 17 e PostgreSQL (ou Docker) para o back-end
+
+### 5.2. Back-end
+Siga o README do [repositório do back-end](https://github.com/devlucas-tec/DAW2-PROJETO). A API sobe em `http://localhost:8080`.
+
+### 5.3. Front-end
 ```bash
-# 1. Subir o container do PostgreSQL (porta 5433 do host)
-docker compose up -d
-
-# 2. Copiar o arquivo de configuração caso ainda não exista
-cp application.properties.example src/main/resources/application.properties
-
-# 3. Iniciar a API Spring Boot na porta 8080
-./mvnw spring-boot:run
-```
-- A API estará disponível em `http://localhost:8080` (Swagger UI em `http://localhost:8080/swagger-ui/index.html`).
-
-### 3.3. Subindo o Front-end (Next.js)
-Neste diretório (`daw3-marketplace-front`):
-
-```bash
-# 1. Instalar as dependências
-npm install --legacy-peer-deps
-
-# 2. Iniciar o servidor de desenvolvimento
+npm install
 npm run dev
 ```
-- Acesse **`http://localhost:3000`** no navegador.
-- Todas as requisições para `/api/*` são redirecionadas automaticamente para `http://localhost:8080/*` via `rewrites` no `next.config.ts`, evitando bloqueios de CORS.
+Acesse `http://localhost:3000`.
+
+### 5.4. Com Docker (sem instalar Node, Java nem PostgreSQL)
+As imagens do front-end (`devlucas07/marketplace-frontend`) e do back-end (`devlucas07/marketplace-backend`) ficam no Docker Hub e são atualizadas a cada merge na `main`.
+
+O arquivo `docker-compose.yml`, que sobe o banco, o back-end e o front-end juntos, **não fica no repositório**: ele é enviado à parte pela equipe. Com ele numa pasta qualquer e o Docker instalado:
+
+```bash
+docker compose up -d
+```
+
+Depois, acesse `http://localhost:3000` (a API fica em `http://localhost:8080`). As instruções estão comentadas no próprio arquivo.
 
 ---
 
-## 4. Credenciais de Teste e População Inicial (Seed)
+## 6. Credenciais de demonstração
 
-Na tela de `/login`, utilize os botões de **Preenchimento Rápido (Demo)** ou informe manualmente:
+Na tela de login, os botões de **Preenchimento rápido** preenchem estas contas:
 
 | Perfil | E-mail | Senha | Observação |
 |---|---|---|---|
-| **ADMIN** | `admin@marketplace.com` | `admin123` | Criado automaticamente no primeiro boot do back-end |
-| **VENDEDOR** | `vendedor1@eletronicos.com` | `senha123` | Disponível após clicar em **"Popular Banco (Seed)"** |
-| **CLIENTE** | `cliente1@email.com` | `senha123` | Disponível após clicar em **"Popular Banco (Seed)"** |
+| Administrador | `admin@marketplace.com` | `admin123` | Criado automaticamente no primeiro início do back-end |
+| Vendedor | `vendedor1@eletronicos.com` | `senha123` | Disponível depois de popular o banco |
+| Cliente | `cliente1@email.com` | `senha123` | Disponível depois de popular o banco |
 
-> **Dica para avaliação (Seed Cumulativo e Limpeza):**
-> - Faça login primeiro como **Admin** (`Demo: Admin`) e clique em **"Popular Banco (Seed)"** no cabeçalho superior (`Header`). Na primeira execução (banco vazio), ele chama `POST /seed/popular` gerando a carga inicial. Se o banco já estiver populado, ele adiciona automaticamente um novo lote inédito de **+10 produtos realistas** via API, permitindo testar a paginação sem esbarrar em conflitos de unicidade.
-> - Ao lado, o botão **"Limpar Banco"** abre uma confirmação e executa `DELETE /seed/limpar` seguido da limpeza de quaisquer produtos/categorias remanescentes, zerando o catálogo e atualizando a listagem e estatísticas instantaneamente.
+Para popular o banco, entre como administrador e use **Administrador › Ferramentas › Popular banco**.
 
 ---
 
-## 5. Funcionalidades Implementadas
+## 7. Telas
 
-### Requisitos Obrigatórios
-- **RF01 — CRUD Completo de Produto:**
-  - **Criar (`POST /produtos`):** Formulário em `/produtos/novo` com máscara monetária brasileira automática (`0,00`) e atalho `+ Nova Categoria` em modal (`Dialog`).
-  - **Listar (`GET /produtos` e `GET /produtos/buscar`):** Tabela no desktop e cards no mobile em `/produtos` com ações diretas de **Ver** e **Excluir**.
-  - **Detalhar (`GET /produtos/{id}`):** Página `/produtos/[id]` exibindo dados completos, estoque, vendedor, botão de **Editar Produto** e lista de avaliações (`GET /avaliacoes`).
-  - **Editar (`PATCH /produtos/{id}`):** Formulário pré-preenchido em `/produtos/[id]/editar`, acionado a partir da página de detalhes.
-  - **Excluir (`DELETE /produtos/{id}`):** Modal de confirmação (`AlertDialog`) com tratamento específico para erro `409 Conflito` (produto vinculado a pedido).
-- **RF02 — Persistência Real:** Integração integral com Spring Boot + PostgreSQL via JWT.
-- **RF03 — Listagem Inteligente:** Filtro por nome (`LIKE` case-insensitive), categoria e faixa de preço (`precoMin` / `precoMax` com máscara monetária), paginação do servidor (10 itens por página) e ordenação no cliente (preço menor/maior, nome A-Z e estoque).
-- **RF04 — Validação de Formulários:** Esquemas `zod` + `react-hook-form` espelhando as anotações Bean Validation do back-end, além de mapeamento automático do mapa `erros` do `ProblemDetail` para os campos do formulário.
-- **RF05 — Navegação e Controle de Acesso:** Rotas `/login`, `/produtos`, `/produtos/novo`, `/produtos/[id]` e `/produtos/[id]/editar` protegidas por `AuthProvider` e `RoleGuard`.
-- **RF06 — Feedback Visual:** Esqueletos de carregamento (`Skeleton`), spinners em botões assíncronos, `AlertDialog` antes de exclusões e toasts `Sonner` exibindo mensagens de sucesso ou o campo `detail` do `ProblemDetail`.
-
-### Recursos de Pontuação Extra (+10 Pontos)
-1. **Tema Claro / Escuro (`next-themes`):** Alternância persistente no cabeçalho e na tela de login.
-2. **Estatísticas e Mini-Gráfico (`ProductStats`):** Quatro cards no topo de `/produtos` exibindo Total no Catálogo (`totalElements`), Preço Médio da página, Unidades em Estoque (com alerta de itens críticos ≤ 5) e barra proporcional de Distribuição por Categoria.
-3. **Exportação de Dados (`ExportProductsButton`):** Exportação instantânea dos produtos listados para `.CSV` (compatível com Excel/UTF-8 BOM) ou `.JSON`.
+| | |
+|---|---|
+| **Vitrine**<br/>![Vitrine](docs/prints/p2/01-vitrine.png) | **Busca com filtros**<br/>![Busca](docs/prints/p2/02-busca.png) |
+| **Produto**<br/>![Produto](docs/prints/p2/03-produto.png) | **Carrinho do visitante**<br/>![Carrinho](docs/prints/p2/04-carrinho-visitante.png) |
+| **Checkout (revisão)**<br/>![Checkout](docs/prints/p2/05-checkout.png) | **Meus pedidos**<br/>![Meus pedidos](docs/prints/p2/06-meus-pedidos.png) |
+| **Rastreio e linha do tempo**<br/>![Rastreio](docs/prints/p2/07-rastreio.png) | **Pedido de devolução**<br/>![Devolução](docs/prints/p2/11-devolucao.png) |
+| **Painel do vendedor**<br/>![Painel do vendedor](docs/prints/p2/08-painel-vendedor.png) | **Vendedor avança o pedido**<br/>![Avançar pedido](docs/prints/p2/09-avancar-pedido.png) |
+| **Perfil da loja**<br/>![Perfil da loja](docs/prints/p2/10-perfil-loja.png) | **Painel do administrador**<br/>![Painel do administrador](docs/prints/p2/12-painel-admin.png) |
+| **No celular**<br/>![Celular](docs/prints/p2/13-celular.png) | |
 
 ---
 
-## 6. Capturas de Tela (Prints)
+## 8. Estrutura de pastas
 
-- **Tela de Login e Cadastro Rápido (`/login`):**
+```text
+src/
+├── app/
+│   ├── (loja)/          # Vitrine, busca, categoria, produto, página da loja e área do cliente (perfil, endereços…)
+│   ├── (painel)/        # Painéis com sidebar: conta do cliente, vendedor, administrador e notificações
+│   ├── carrinho/        # Carrinho (visitante e cliente)
+│   ├── checkout/        # Checkout em etapas e página de sucesso
+│   ├── login/           # Login e cadastro
+│   ├── error.tsx, not-found.tsx, loading.tsx, global-error.tsx
+│   └── layout.tsx       # Providers (tema, sessão, carrinho, modal, favoritos, notificações) e metadata
+├── components/          # Por área: admin, auth, busca, checkout, layout, loja, pedidos, produtos, vendedor, vitrine, ui
+├── context/             # AuthContext, CartContext, ModalContext, FavoritosContext, NotificacoesContext
+├── hooks/               # useCarregar, useRequireAuth, useAtualizarAoFocar…
+├── lib/                 # Formatação (moeda, datas), rótulos e utilitários
+├── services/            # Única camada que fala com a API (api.ts + um serviço por recurso)
+└── types/               # Contratos TypeScript dos DTOs do back-end
+```
 
-![Tela de Login](docs/prints/01-login.png)
+Cada página com sessão segue o padrão `page.tsx` (servidor, com `metadata`) + `conteudo.tsx` (cliente).
 
-- **Listagem de Produtos, Estatísticas e Filtros (`/produtos`):**
+---
 
-![Listagem de Produtos](docs/prints/02-listagem.png)
+## 9. Projeto I
 
-- **Cadastro de Produto e Modal de Nova Categoria (`/produtos/novo`):**
-
-![Novo Produto](docs/prints/03-novo-produto.png)
-
-- **Detalhes do Produto e Avaliações (`/produtos/[id]`):**
-
-![Detalhes do Produto](docs/prints/04-detalhes.png)
-
-- **Modal de Confirmação de Exclusão e Tratamento de Conflito 409:**
-
-![Modal de Exclusão](docs/prints/05-exclusao.png)
-
-- **Alternância de Tema Claro/Escuro e Responsividade Mobile:**
-
-![Tema Escuro e Mobile](docs/prints/06-mobile-dark.png)
+O CRUD de produto do Projeto I continua no sistema (`/produtos`, `/produtos/novo`, `/produtos/{id}/editar`), com estatísticas do catálogo, exportação em CSV e JSON e tratamento do conflito `409` na exclusão. Os prints daquela etapa estão em [`docs/prints`](docs/prints).
