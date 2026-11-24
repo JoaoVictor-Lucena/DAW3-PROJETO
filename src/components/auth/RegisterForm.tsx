@@ -63,10 +63,17 @@ export interface RegisterFormProps {
   onSuccess?: (user: AuthUser) => void;
   /** Esconde a opção "Vendedor" (ex.: modal de login sob demanda, que é só para compras). */
   apenasCliente?: boolean;
+  /** Tipo de conta já marcado ao abrir (padrão: Cliente). */
+  tipoInicial?: Tipo;
 }
 
-export function RegisterForm({ onRegistered, onSuccess, apenasCliente }: RegisterFormProps) {
-  const [tipo, setTipo] = React.useState<Tipo>("CLIENTE");
+export function RegisterForm({
+  onRegistered,
+  onSuccess,
+  apenasCliente,
+  tipoInicial = "CLIENTE",
+}: RegisterFormProps) {
+  const [tipo, setTipo] = React.useState<Tipo>(apenasCliente ? "CLIENTE" : tipoInicial);
 
   return (
     <div className="space-y-4">

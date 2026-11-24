@@ -44,9 +44,12 @@ export function Header() {
           <span className="hidden sm:inline">Marketplace</span>
         </Link>
 
-        {/* Menu de Categorias (Desktop) */}
-        <div className="hidden md:flex items-center">
+        {/* Menu de Categorias e link fixo para o catálogo completo (Desktop) */}
+        <div className="hidden md:flex items-center gap-1">
           <MenuCategorias />
+          <Link href="/produtos" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+            Produtos
+          </Link>
         </div>
 
         {/* Busca: só no desktop (no mobile fica dentro do Sheet). */}

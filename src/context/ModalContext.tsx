@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 import { LoginForm } from "@/components/auth/LoginForm";
 import { RegisterForm } from "@/components/auth/RegisterForm";
@@ -113,7 +114,20 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
             {mode === "login" ? (
               <LoginForm onSuccess={handleLogged} />
             ) : (
-              <RegisterForm apenasCliente onRegistered={() => setMode("login")} onSuccess={handleLogged} />
+              <>
+                <RegisterForm apenasCliente onRegistered={() => setMode("login")} onSuccess={handleLogged} />
+                {/* O modal é para compras; a conta de vendedor abre a página de login já na aba certa. */}
+                <p className="mt-4 border-t pt-4 text-center text-sm text-muted-foreground">
+                  Quer vender no marketplace?{" "}
+                  <Link
+                    href="/login?cadastro=vendedor"
+                    onClick={() => handleOpenChange(false)}
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Crie uma conta de vendedor
+                  </Link>
+                </p>
+              </>
             )}
           </div>
         </DialogContent>
