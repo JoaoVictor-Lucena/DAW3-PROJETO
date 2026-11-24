@@ -22,10 +22,13 @@ import { destinoAposLogin, redirectSeguro } from "@/lib/auth-routes";
 type Mode = "login" | "register";
 
 export function LoginPage() {
-  const [mode, setMode] = React.useState<Mode>("login");
+  const params = useSearchParams();
+  // /login?cadastro=vendedor (link do modal de compra) já abre o cadastro com "Vendedor" marcado.
+  const cadastroVendedor = params.get("cadastro") === "vendedor";
+  const [mode, setMode] = React.useState<Mode>(cadastroVendedor ? "register" : "login");
   const { user } = useAuth();
   const router = useRouter();
-  const redirect = redirectSeguro(useSearchParams().get("redirect"));
+  const redirect = redirectSeguro(params.get("redirect"));
 
   React.useEffect(() => {
     if (user) router.replace(redirect ?? destinoAposLogin(user.role));
@@ -89,7 +92,10 @@ export function LoginPage() {
           {mode === "login" ? (
             <LoginForm />
           ) : (
-            <RegisterForm onRegistered={() => setMode("login")} />
+            <RegisterForm
+              tipoInicial={cadastroVendedor ? "VENDEDOR" : "CLIENTE"}
+              onRegistered={() => setMode("login")}
+            />
           )}
         </CardContent>
       </Card>
