@@ -12,7 +12,7 @@ Marketplace com vários vendedores: cada loja cadastra os próprios produtos e o
 
 ## Vídeo de demonstração
 
-[![Assistir ao vídeo de demonstração no YouTube](https://img.youtube.com/vi/e2L_eYKAVTQ/maxresdefault.jpg)](https://youtu.be/e2L_eYKAVTQ)
+[![Assistir ao vídeo de demonstração no YouTube](docs/prints/p2/capa-video.png)](https://youtu.be/e2L_eYKAVTQ)
 
 **[▶ Assistir no YouTube](https://youtu.be/e2L_eYKAVTQ)** (9 min 40 s): uma compra de ponta a ponta passando pelos três perfis. O visitante monta o carrinho sem login, o cliente compra e acompanha o pedido, o vendedor despacha e responde à devolução, e o administrador acompanha as métricas. A descrição do vídeo tem capítulos por assunto.
 
