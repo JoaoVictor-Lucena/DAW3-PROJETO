@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { ShoppingCartIcon, StoreIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -12,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/context/CartContext";
-import { BLOCKED_MESSAGE, useRequireAuth } from "@/hooks/useRequireAuth";
+import { BLOCKED_MESSAGE, useBloqueioPorPerfil } from "@/hooks/useRequireAuth";
 import { formatBRL } from "@/lib/format";
 import { textoParcelamento } from "@/lib/parcelas";
 import { getErrorMessage } from "@/services/api";
@@ -37,20 +36,20 @@ function SeloEstoque({ estoque }: { estoque: number }) {
   return null;
 }
 
+/** O visitante adiciona sem login: o item fica no carrinho do navegador até ele entrar. */
 function BotaoCarrinho({ produto }: { produto: Produto }) {
   const { addItem } = useCart();
+  const isRoleBlocked = useBloqueioPorPerfil();
   const esgotado = produto.estoque <= 0;
 
-  const adicionar = React.useCallback(async () => {
+  async function adicionar() {
     try {
       await addItem(produto.id, 1, { nome: produto.nome, preco: produto.preco });
       toast.success("Item adicionado!");
     } catch (error) {
       toast.error(getErrorMessage(error));
     }
-  }, [addItem, produto.id, produto.nome, produto.preco]);
-
-  const { requireAuth, isRoleBlocked } = useRequireAuth(adicionar);
+  }
 
   return (
     <Button
@@ -58,7 +57,7 @@ function BotaoCarrinho({ produto }: { produto: Produto }) {
       className="w-full"
       disabled={esgotado || isRoleBlocked}
       title={isRoleBlocked ? BLOCKED_MESSAGE : undefined}
-      onClick={() => requireAuth()}
+      onClick={() => void adicionar()}
       aria-label={`Adicionar ${produto.nome} ao carrinho`}
     >
       <ShoppingCartIcon /> {esgotado ? "Indisponível" : "Adicionar"}

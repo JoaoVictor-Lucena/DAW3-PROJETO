@@ -9,6 +9,7 @@ export interface Produto {
   idVendedor: number;
   nomeVendedor: string;
   imagemUrl?: string | null;
+  imagens?: string[];
   ativo?: boolean;
   mediaAvaliacoes?: number | null;
   totalAvaliacoes?: number;
