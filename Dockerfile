@@ -23,6 +23,9 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+# Buscas feitas no servidor (ex.: título do produto, nome da categoria) leem BACKEND_URL em
+# tempo de execução; o padrão é o serviço "backend" do docker compose.
+ENV BACKEND_URL=http://backend:8080
 COPY --from=build --chown=node:node /app/public ./public
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
