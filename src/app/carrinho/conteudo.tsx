@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeftIcon, Loader2Icon, ShoppingCart, Trash2Icon } from "lucide-react";
+import { ArrowLeftIcon, InfoIcon, Loader2Icon, ShoppingCart, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Header } from "@/components/layout/Header";
@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { BLOCKED_MESSAGE, useRequireAuth } from "@/hooks/useRequireAuth";
 import { formatBRL } from "@/lib/format";
@@ -34,6 +35,8 @@ import type { Produto } from "@/types";
 
 export default function CarrinhoPage() {
   const router = useRouter();
+  const { user, ready } = useAuth();
+  const visitante = ready && !user;
   const { items, removeItem } = useCart();
   const [detalhes, setDetalhes] = React.useState<Record<number, Produto>>({});
   const [removendoId, setRemovendoId] = React.useState<number | null>(null);
@@ -127,6 +130,16 @@ export default function CarrinhoPage() {
             <ArrowLeftIcon className="size-4" /> Continuar comprando
           </Link>
         </div>
+
+        {visitante && items.length > 0 && (
+          <div className="flex items-start gap-3 rounded-lg border bg-muted/40 p-3 text-sm" role="note">
+            <InfoIcon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+            <p>
+              Você ainda não entrou. Os itens ficam guardados neste navegador e vão para a sua conta
+              quando você entrar para finalizar a compra.
+            </p>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <Card className="p-12 text-center">

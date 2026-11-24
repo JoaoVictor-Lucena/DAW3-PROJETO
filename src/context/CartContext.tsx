@@ -53,6 +53,27 @@ function sessionEmail(): string | null {
   }
 }
 
+/**
+ * Depois de entrar, conta ao cliente o que aconteceu com o carrinho que ele montou como visitante.
+ * O back-end soma as quantidades, limita ao estoque e ignora produtos que saíram da vitrine.
+ */
+function avisarMesclagem(pendentes: CartItem[], carrinho: Carrinho) {
+  const noCarrinho = new Set(carrinho.itens.map((i) => i.idProduto));
+  const fora = pendentes.filter((p) => !noCarrinho.has(p.produtoId)).length;
+  if (fora === pendentes.length) {
+    toast.warning("Os itens que você escolheu antes de entrar não estão mais disponíveis.");
+    return;
+  }
+  toast.success("Os itens que você escolheu antes de entrar foram para o seu carrinho.");
+  if (fora > 0) {
+    toast.warning(
+      fora === 1
+        ? "1 item não está mais disponível e ficou de fora."
+        : `${fora} itens não estão mais disponíveis e ficaram de fora.`,
+    );
+  }
+}
+
 const fromApi = (c: Carrinho): CartItem[] =>
   c.itens.map((i) => ({
     produtoId: i.idProduto,
@@ -92,6 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (pendentes.length) {
           save([]);
           setLocal([]);
+          avisarMesclagem(pendentes, carrinho);
         }
       } catch (error) {
         mergedFor.current = null;
